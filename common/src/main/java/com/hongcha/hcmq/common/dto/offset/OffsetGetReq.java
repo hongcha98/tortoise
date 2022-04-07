@@ -1,0 +1,22 @@
+package com.hongcha.hcmq.common.dto.offset;
+
+public class OffsetGetReq {
+    private String topicName;
+    private int queueId;
+
+    public String getTopicName() {
+        return topicName;
+    }
+
+    public void setTopicName(String topicName) {
+        this.topicName = topicName;
+    }
+
+    public int getQueueId() {
+        return queueId;
+    }
+
+    public void setQueueId(int queueId) {
+        this.queueId = queueId;
+    }
+}
