@@ -1,14 +1,18 @@
 package com.hongcha.turtles.client;
 
+import com.hongcha.remote.common.spi.SpiLoader;
+import com.hongcha.remote.protocol.Protocol;
 import com.hongcha.turtles.client.config.TurtlesConfig;
 import com.hongcha.turtles.common.dto.login.LoginMessageReq;
 import com.hongcha.turtles.common.dto.topic.TopicCreateMessageReq;
-import com.hongcha.remote.common.spi.SpiLoader;
-import com.hongcha.remote.protocol.Protocol;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class AbstractClientApi implements ClientApi {
+    protected final Logger log = LoggerFactory.getLogger(this.getClass());
+
     private final AtomicBoolean start = new AtomicBoolean(false);
 
     private final TurtlesConfig turtlesConfig;
@@ -58,9 +62,6 @@ public abstract class AbstractClientApi implements ClientApi {
         if (start.compareAndSet(false, true)) {
             try {
                 core.start();
-                LoginMessageReq loginMessageReq = new LoginMessageReq();
-                loginMessageReq.setUsername(turtlesConfig.getUsername());
-                loginMessageReq.setPassword(turtlesConfig.getPassword());
                 doStart();
             } catch (Exception e) {
                 close();
@@ -81,7 +82,7 @@ public abstract class AbstractClientApi implements ClientApi {
 
     protected abstract void doClose();
 
-    public TurtlesConfig TurtlesConfig() {
+    public TurtlesConfig getTurtlesConfig() {
         return turtlesConfig;
     }
 

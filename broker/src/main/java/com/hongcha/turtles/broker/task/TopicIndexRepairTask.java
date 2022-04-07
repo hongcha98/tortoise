@@ -21,34 +21,29 @@ public class TopicIndexRepairTask extends AbstractTask {
 
     @Override
     protected void doRun() {
-        try {
-            TurtlesBroker turtlesBroker = getBroker();
-            Map<Channel, ChannelContext> channelChannelContextMap = turtlesBroker.getChannelContextManage().getAllChannelContext();
-            SessionManage sessionManage = turtlesBroker.getSubscriptionManage();
-            channelChannelContextMap.values().forEach(channelContext -> {
-                String groupName = channelContext.getGroupName();
-                // 是否进行订阅
-                if (groupName != null) {
-                    Channel channel = channelContext.getChannel();
-                    boolean flag = channelContext.isLoginFlag() && channelContext.getChannel().isActive();
-                    channelContext.getTopicNames().forEach(topic -> {
-                        try {
-                            if (flag) {
-                                sessionManage.subscription(topic, groupName, channel);
-                            } else {
-                                sessionManage.unSubscription(topic, groupName, channel);
-                            }
-                        } catch (Exception e) {
-                            log.error("sessionManage subscription error", e);
+        TurtlesBroker turtlesBroker = getBroker();
+        Map<Channel, ChannelContext> channelChannelContextMap = turtlesBroker.getChannelContextManage().getAllChannelContext();
+        SessionManage sessionManage = turtlesBroker.getSessionManage();
+        channelChannelContextMap.values().forEach(channelContext -> {
+            String groupName = channelContext.getGroupName();
+            // 是否进行订阅
+            if (groupName != null) {
+                Channel channel = channelContext.getChannel();
+                boolean flag = channelContext.isLoginFlag() && channelContext.getChannel().isActive();
+                channelContext.getTopicNames().forEach(topic -> {
+                    try {
+                        if (flag) {
+                            sessionManage.subscription(topic, groupName, channel);
+                        } else {
+                            sessionManage.unSubscription(topic, groupName, channel);
                         }
+                    } catch (Exception e) {
+                        log.error("sessionManage subscription error", e);
+                    }
 
-                    });
-                }
-            });
-        } catch (Exception e) {
-            log.error("TopicIndexRepairTask error", e);
-        }
-
+                });
+            }
+        });
     }
 
 }

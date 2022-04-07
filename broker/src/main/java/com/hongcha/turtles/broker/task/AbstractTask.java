@@ -1,8 +1,12 @@
 package com.hongcha.turtles.broker.task;
 
 import com.hongcha.turtles.broker.TurtlesBroker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractTask implements Runnable {
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
+
     private final TurtlesBroker turtlesBroker;
 
     protected AbstractTask(TurtlesBroker turtlesBroker) {
@@ -12,7 +16,12 @@ public abstract class AbstractTask implements Runnable {
     @Override
     public void run() {
         do {
-            doRun();
+            try {
+                doRun();
+            } catch (Exception e) {
+                log.error("task run error", e);
+            }
+
         } while (runForever());
     }
 

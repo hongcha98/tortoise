@@ -8,7 +8,7 @@ public interface ClientApi extends LifeCycle {
 
     boolean deleteTopic(String topic);
 
-    TurtlesConfig TurtlesConfig();
+    TurtlesConfig getTurtlesConfig();
 
 }
 

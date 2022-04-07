@@ -101,19 +101,4 @@ public class ProcessTest {
     }
 
 
-    @Test
-    public void getMessageProcess() throws ExecutionException, InterruptedException, TimeoutException {
-        MessageGetReq messageGetReq = new MessageGetReq();
-        messageGetReq.setTopicName(ConstantTest.TOPIC_NAME);
-        messageGetReq.setId(0);
-        messageGetReq.setOffset(0);
-        Message message = remoteClient.buildRequest(messageGetReq, PROCESS_GET_MESSAGE);
-        MessageInfo messageInfo = remoteClient.send("127.0.0.1", ConstantTest.TURTLES_CONFIG.getPort(), message, MessageInfo.class);
-        System.out.println("getMessageMessageResp = " + messageInfo);
-        messageGetReq.setOffset(messageInfo.getNextOffset());
-        message = remoteClient.buildRequest(messageGetReq, PROCESS_GET_MESSAGE);
-        messageInfo = remoteClient.send("127.0.0.1", ConstantTest.TURTLES_CONFIG.getPort(), message, MessageInfo.class);
-        System.out.println("getMessageMessageResp = " + messageInfo);
-    }
-
 }

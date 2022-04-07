@@ -12,7 +12,6 @@ public class ProducerTest {
         turtlesConfig.setGroupName("producer");
         Producer producer = new DefaultProducer(turtlesConfig);
         producer.start();
-        producer.createTopic("test-topic", 4);
         Scanner scanner = new Scanner(System.in);
         while (true) {
             try {

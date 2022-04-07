@@ -5,6 +5,7 @@ import com.hongcha.turtles.common.dto.constant.ProcessConstant;
 import com.hongcha.turtles.common.dto.login.LoginMessageReq;
 import com.hongcha.turtles.common.dto.message.MessageAddReq;
 import com.hongcha.turtles.common.dto.message.MessageGetReq;
+import com.hongcha.turtles.common.dto.message.MessageGetResp;
 import com.hongcha.turtles.common.dto.message.MessageInfo;
 import com.hongcha.turtles.common.dto.offset.OffsetCommitReq;
 import com.hongcha.turtles.common.dto.offset.OffsetGetReq;
@@ -100,8 +101,8 @@ public class DefaultCore implements Core {
     }
 
     @Override
-    public MessageInfo getMessageInfo(MessageGetReq messageGetReq) {
-        return send(messageGetReq, ProcessConstant.PROCESS_GET_MESSAGE, MessageInfo.class);
+    public MessageGetResp pullMessage(MessageGetReq messageGetReq) {
+        return send(messageGetReq, ProcessConstant.PROCESS_GET_MESSAGE, MessageGetResp.class);
     }
 
     @Override

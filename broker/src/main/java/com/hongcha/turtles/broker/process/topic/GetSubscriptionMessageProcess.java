@@ -25,7 +25,7 @@ public class GetSubscriptionMessageProcess extends AbstractProcess {
         GetSubscriptionMessageResp resp = new GetSubscriptionMessageResp();
         Map<String, Set<Integer>> topicQueuesIdMap = new HashMap<>();
         channelContext.getTopicNames().stream().forEach(topicName -> {
-            Set<Integer> allocate = getBroker().getSubscriptionManage().getAllocate(topicName, groupName, channel);
+            Set<Integer> allocate = getBroker().getSessionManage().getAllocate(topicName, groupName, channel);
             topicQueuesIdMap.put(topicName, allocate);
         });
         resp.setTopicQueuesIdMap(topicQueuesIdMap);

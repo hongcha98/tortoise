@@ -79,7 +79,7 @@ public class TurtlesBroker implements LifeCycle {
     }
 
 
-    public SessionManage getSubscriptionManage() {
+    public SessionManage getSessionManage() {
         return sessionManage;
     }
 

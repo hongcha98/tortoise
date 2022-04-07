@@ -2,7 +2,7 @@ package com.hongcha.turtles.client;
 
 import com.hongcha.turtles.common.dto.message.MessageAddReq;
 import com.hongcha.turtles.common.dto.message.MessageGetReq;
-import com.hongcha.turtles.common.dto.message.MessageInfo;
+import com.hongcha.turtles.common.dto.message.MessageGetResp;
 import com.hongcha.turtles.common.dto.offset.OffsetCommitReq;
 import com.hongcha.turtles.common.dto.offset.OffsetGetReq;
 import com.hongcha.turtles.common.dto.topic.GetSubscriptionMessageReq;
@@ -47,6 +47,6 @@ public interface Core extends LifeCycle {
     /**
      * 获取信息
      */
-    MessageInfo getMessageInfo(MessageGetReq messageGetReq);
+    MessageGetResp pullMessage(MessageGetReq messageGetReq);
 
 }

@@ -1,10 +1,10 @@
 package com.hongcha.turtles.broker.offset;
 
+import com.hongcha.remote.common.spi.SpiLoader;
+import com.hongcha.remote.protocol.Protocol;
 import com.hongcha.turtles.broker.constant.Constant;
 import com.hongcha.turtles.broker.error.TurtlesException;
 import com.hongcha.turtles.broker.topic.TopicManage;
-import com.hongcha.remote.common.spi.SpiLoader;
-import com.hongcha.remote.protocol.Protocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +48,11 @@ public class FileOffsetManage extends AbstractOffsetManage {
     @Override
     protected void enduranceAll() {
         enduranceCommon();
+        try {
+            randomAccessFile.close();
+        } catch (IOException e) {
+            log.error("file close error", e);
+        }
     }
 
     @Override
