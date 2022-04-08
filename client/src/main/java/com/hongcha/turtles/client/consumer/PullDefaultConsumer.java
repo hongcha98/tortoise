@@ -16,18 +16,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class DefaultConsumer extends AbstractClientApi implements Consumer {
+public class PullDefaultConsumer extends AbstractClientApi implements Consumer {
     private Map<String, MessageListener> messageListenerMap = new ConcurrentHashMap<>();
 
     private ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
 
-    public DefaultConsumer(TurtlesConfig turtlesConfig) {
+    public PullDefaultConsumer(TurtlesConfig turtlesConfig) {
         super(turtlesConfig);
         getCore().setRunanber(() -> doSubscription());
     }
 
 
-    public DefaultConsumer(TurtlesConfig turtlesConfig, Protocol protocol) {
+    public PullDefaultConsumer(TurtlesConfig turtlesConfig, Protocol protocol) {
         super(turtlesConfig, protocol);
         getCore().setRunanber(() -> doSubscription());
 
@@ -38,7 +38,7 @@ public class DefaultConsumer extends AbstractClientApi implements Consumer {
     }
 
     @Override
-    protected void doStart() throws Exception {
+    protected void doStart() {
         scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(messageListenerMap.size());
         messageListenerMap.forEach((topic, messageListener) -> {
             scheduledThreadPoolExecutor.scheduleAtFixedRate(() -> topicPullMessage(topic, messageListener), 100, 100, TimeUnit.MILLISECONDS);
@@ -90,7 +90,7 @@ public class DefaultConsumer extends AbstractClientApi implements Consumer {
         subscriptionMessageReq.setGroupName(getTurtlesConfig().getGroupName());
         subscriptionMessageReq.setTopicNames(messageListenerMap.keySet());
         if (!getCore().subscription(subscriptionMessageReq)) {
-            log.warn("subscription error");
+            log.info("subscription error");
         }
     }
 

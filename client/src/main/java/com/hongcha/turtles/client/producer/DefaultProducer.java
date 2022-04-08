@@ -1,27 +1,22 @@
 package com.hongcha.turtles.client.producer;
 
+import com.hongcha.remote.protocol.Protocol;
 import com.hongcha.turtles.client.AbstractClientApi;
 import com.hongcha.turtles.client.config.TurtlesConfig;
 import com.hongcha.turtles.common.dto.message.MessageAddReq;
-import com.hongcha.remote.protocol.Protocol;
 
-import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 
 public class DefaultProducer extends AbstractClientApi implements Producer {
-
-
     public DefaultProducer(TurtlesConfig turtlesConfig) {
         super(turtlesConfig);
     }
 
     public DefaultProducer(TurtlesConfig turtlesConfig, Protocol protocol) {
         super(turtlesConfig, protocol);
-    }
-
-    public String send(String topic, Object msg) {
-        return send(topic, Collections.emptyMap(), msg);
     }
 
     @Override
@@ -33,14 +28,4 @@ public class DefaultProducer extends AbstractClientApi implements Producer {
         return getCore().send(req);
     }
 
-
-    @Override
-    protected void doStart() throws Exception {
-
-    }
-
-    @Override
-    protected void doClose() {
-
-    }
 }

@@ -12,7 +12,7 @@ public class ConsumerTest {
     @Before
     public void init() {
         ConstantTest.TURTLES_CONFIG.setGroupName(ConstantTest.CONSUMER_GROUP_NAME);
-        consumer = new DefaultConsumer(ConstantTest.TURTLES_CONFIG);
+        consumer = new PullDefaultConsumer(ConstantTest.TURTLES_CONFIG);
     }
 
     @Test

@@ -7,6 +7,7 @@ public class TurtlesMain {
         TurtlesConfig turtlesConfig = parse(args);
         TurtlesBroker turtlesBroker = new TurtlesBroker(turtlesConfig);
         turtlesBroker.start();
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> turtlesBroker.close()));
     }
 
     private static TurtlesConfig parse(String[] args) {

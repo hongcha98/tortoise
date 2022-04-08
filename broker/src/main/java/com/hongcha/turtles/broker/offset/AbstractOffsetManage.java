@@ -6,21 +6,29 @@ import com.hongcha.turtles.broker.topic.TopicManage;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractOffsetManage implements OffsetManage {
     private Map<String /* topic*/, Map<String /* group */, TopicOffsetInfo>> topicGroupOffsetMap = new ConcurrentHashMap<>();
 
     private TopicManage topicManage;
 
+    private ScheduledExecutorService scheduledExecutorService;
 
     public AbstractOffsetManage(TopicManage topicManage) {
         this.topicManage = topicManage;
+        scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
     }
 
     @Override
     public void close() {
-        enduranceAll();
+        scheduledExecutorService.shutdown();
+        doClose();
     }
+
+    protected abstract void doClose();
 
 
     public Map<String, Map<String, TopicOffsetInfo>> getTopicGroupOffsetMap() {
@@ -54,6 +62,7 @@ public abstract class AbstractOffsetManage implements OffsetManage {
     public void commitOffset(String topic, String group, int id, int offset) {
         Map<Integer, Integer> offsetMap = getOffset(topic, group);
         offsetMap.put(id, offset);
+        endurance(topic, group, id, offset);
     }
 
     public void checkTopic(String topic) {
@@ -86,18 +95,30 @@ public abstract class AbstractOffsetManage implements OffsetManage {
      * @param id
      * @param offset
      */
-    protected abstract void endurance(String topic, String group, int id, int offset);
+    protected void endurance(String topic, String group, int id, int offset) {
+    }
 
     /**
      * 持久化所有
      */
-    protected abstract void enduranceAll();
+    protected void enduranceAll() {
+    }
+
 
     /**
      * 持久化这个主题的信息
      *
      * @param topic
      */
-    protected abstract void enduranceTopic(String topic);
+    protected void enduranceTopic(String topic) {
+    }
+
+    @Override
+    public void start() {
+        initAllOffset();
+        scheduledExecutorService.scheduleAtFixedRate(() -> enduranceAll(), 1, 1, TimeUnit.MILLISECONDS);
+    }
+
+    protected abstract void initAllOffset();
 
 }

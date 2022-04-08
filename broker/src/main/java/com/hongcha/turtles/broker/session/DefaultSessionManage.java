@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class DefaultSessionManage implements SessionManage {
     private static final Logger log = LoggerFactory.getLogger(DefaultSessionManage.class);
@@ -49,26 +50,40 @@ public class DefaultSessionManage implements SessionManage {
             average = 1;
         }
         int finalAverage = average;
+        // 剩余个数
+        AtomicInteger surplus = new AtomicInteger(queuesId.size() - average * size);
         // 可分配的queue ids
         Set<Integer> allocatableQueuesId = new HashSet<>(queuesId);
-        channelQueueIdMap.forEach((channel, assignedQueuesId) -> {
-            int number = 0;
-            Set<Integer> newReallocateIds = new HashSet<>();
-            Iterator<Integer> idIterator = assignedQueuesId.iterator();
-            while (idIterator.hasNext()) {
-                if (number++ < finalAverage) {
-                    newReallocateIds.add(idIterator.next());
-                } else {
-                    channelQueueIdMap.put(channel, newReallocateIds);
-                    allocatableQueuesId.removeAll(newReallocateIds);
-                    break;
+        // 对当前channel的分配id做出调整
+        channelQueueIdMap.forEach((channel, assignedQueueIds) -> {
+            if (assignedQueueIds.isEmpty()) return;
+            int assignedQueueIdsSize = assignedQueueIds.size();
+            if (assignedQueueIdsSize > finalAverage) {
+                int number = finalAverage;
+                if (surplus.getAndDecrement() > 0) {
+                    number += 1;
                 }
+                Iterator<Integer> iterator = assignedQueueIds.iterator();
+                while (iterator.hasNext()) {
+                    Integer queueId = iterator.next();
+                    if (number-- > 0) {
+                        allocatableQueuesId.remove(queueId);
+                    } else {
+                        iterator.remove();
+                    }
+                }
+            } else {
+                allocatableQueuesId.removeAll(assignedQueueIds);
             }
         });
+        // 对剩余ids 做出分配
         channelQueueIdMap.forEach((channel, assignedQueuesId) -> {
             if (!allocatableQueuesId.isEmpty()) {
                 // 需要分配多少个id
                 int averageNumber = finalAverage - assignedQueuesId.size();
+                if (surplus.getAndDecrement() > 0) {
+                    averageNumber += 1;
+                }
                 for (int i = 0; i < averageNumber; i++) {
                     Iterator<Integer> allocatableQueuesIdIterator = allocatableQueuesId.iterator();
                     if (allocatableQueuesIdIterator.hasNext()) {
@@ -79,16 +94,7 @@ public class DefaultSessionManage implements SessionManage {
                 }
             }
         });
-        if (!allocatableQueuesId.isEmpty()) {
-            Iterator<Integer> iterator = allocatableQueuesId.iterator();
-            channelQueueIdMap.forEach((channel, assignedQueuesId) -> {
-                if (iterator.hasNext()) {
-                    assignedQueuesId.add(iterator.next());
-                }
-            });
-        }
-
-        log.warn("node :{} , reallocate : {}", node, channelQueueIdMap);
+        log.info("node :{} , reallocate : {}", node, channelQueueIdMap);
     }
 
     @Override

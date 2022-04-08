@@ -3,7 +3,6 @@ package com.hongcha.turtles.client;
 import com.hongcha.remote.common.spi.SpiLoader;
 import com.hongcha.remote.protocol.Protocol;
 import com.hongcha.turtles.client.config.TurtlesConfig;
-import com.hongcha.turtles.common.dto.login.LoginMessageReq;
 import com.hongcha.turtles.common.dto.topic.TopicCreateMessageReq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +69,10 @@ public abstract class AbstractClientApi implements ClientApi {
         }
     }
 
-    protected abstract void doStart() throws Exception;
+    protected void doStart() {
+
+    }
+
 
     @Override
     public void close() {
@@ -80,7 +82,9 @@ public abstract class AbstractClientApi implements ClientApi {
         }
     }
 
-    protected abstract void doClose();
+    protected void doClose() {
+
+    }
 
     public TurtlesConfig getTurtlesConfig() {
         return turtlesConfig;

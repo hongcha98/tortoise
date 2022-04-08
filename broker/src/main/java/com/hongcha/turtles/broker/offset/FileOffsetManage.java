@@ -16,10 +16,28 @@ import java.util.Map;
 public class FileOffsetManage extends AbstractOffsetManage {
     private static final Logger log = LoggerFactory.getLogger(FileOffsetManage.class);
 
+    private File file;
+
     private RandomAccessFile randomAccessFile;
 
     public FileOffsetManage(File file, TopicManage topicManage) {
         super(topicManage);
+        this.file = file;
+    }
+
+
+    @Override
+    protected void doClose() {
+        enduranceCommon();
+        try {
+            randomAccessFile.close();
+        } catch (IOException e) {
+            log.error("file close error", e);
+        }
+    }
+
+    @Override
+    protected void initAllOffset() {
         try {
             boolean exists = file.exists();
             if (!exists) {
@@ -37,27 +55,6 @@ public class FileOffsetManage extends AbstractOffsetManage {
         } catch (Exception e) {
             throw new TurtlesException("offset manage error", e);
         }
-    }
-
-
-    @Override
-    protected void endurance(String topic, String group, int id, int offset) {
-        enduranceCommon();
-    }
-
-    @Override
-    protected void enduranceAll() {
-        enduranceCommon();
-        try {
-            randomAccessFile.close();
-        } catch (IOException e) {
-            log.error("file close error", e);
-        }
-    }
-
-    @Override
-    protected void enduranceTopic(String topic) {
-        enduranceCommon();
     }
 
     private void enduranceCommon() {
