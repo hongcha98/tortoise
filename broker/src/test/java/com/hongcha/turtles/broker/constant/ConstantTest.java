@@ -1,7 +1,7 @@
 package com.hongcha.turtles.broker.constant;
 
 import com.hongcha.turtles.broker.config.TurtlesConfig;
-import com.hongcha.turtles.broker.queue.DefaultCoding;
+import com.hongcha.turtles.broker.topic.queue.DefaultCoding;
 import com.hongcha.remote.core.RemoteClient;
 import com.hongcha.remote.core.config.RemoteConfig;
 

@@ -1,7 +1,7 @@
-package com.hongcha.turtles.broker.queue.message;
+package com.hongcha.turtles.broker.topic.queue.message;
 
-import com.hongcha.turtles.broker.queue.Coding;
-import com.hongcha.turtles.broker.queue.DefaultCoding;
+import com.hongcha.turtles.broker.topic.queue.Coding;
+import com.hongcha.turtles.broker.topic.queue.DefaultCoding;
 import com.hongcha.turtles.common.dto.message.Message;
 import org.junit.Assert;
 import org.junit.Before;

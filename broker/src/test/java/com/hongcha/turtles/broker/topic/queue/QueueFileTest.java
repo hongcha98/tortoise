@@ -1,4 +1,4 @@
-package com.hongcha.turtles.broker.queue;
+package com.hongcha.turtles.broker.topic.queue;
 
 import com.hongcha.turtles.broker.constant.ConstantTest;
 import com.hongcha.turtles.common.dto.message.Message;

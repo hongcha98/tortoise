@@ -1,8 +1,8 @@
 package com.hongcha.turtles.broker.config;
 
 import com.hongcha.turtles.broker.constant.Constant;
-import com.hongcha.turtles.broker.queue.Coding;
-import com.hongcha.turtles.broker.queue.DefaultCoding;
+import com.hongcha.turtles.broker.topic.queue.Coding;
+import com.hongcha.turtles.broker.topic.queue.DefaultCoding;
 
 import java.io.File;
 
