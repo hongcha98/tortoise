@@ -10,20 +10,47 @@ import io.github.hongcha98.turtles.common.dto.topic.SubscriptionInfoResponse;
 import io.github.hongcha98.turtles.common.dto.topic.SubscriptionRequest;
 import io.github.hongcha98.turtles.common.dto.topic.TopicCreateRequest;
 
+/**
+ * 核心api,发送请求到broker,并等待响应
+ */
 public interface Core extends LifeCycle {
     /**
      * 重新连接之后的操作
      *
-     * @param runanber
+     * @param runnable
      */
-    void setRunanber(Runnable runanber);
+    void setRunnable(Runnable runnable);
 
+    /**
+     * 注册消费主题
+     *
+     * @param subscriptionRequest
+     * @return
+     */
     boolean subscription(SubscriptionRequest subscriptionRequest);
 
+    /**
+     * 获取当前通道的注册信息
+     *
+     * @param subscriptionInfoRequest
+     * @return
+     */
     SubscriptionInfoResponse getSubscriptionInfo(SubscriptionInfoRequest subscriptionInfoRequest);
 
+    /**
+     * 创建主题
+     *
+     * @param topicCreateRequest
+     * @return 是否成功
+     */
     boolean createTopic(TopicCreateRequest topicCreateRequest);
 
+    /**
+     * 删除主题
+     *
+     * @param topicName
+     * @return 是否成功
+     */
     boolean deleteTopic(String topicName);
 
     /**

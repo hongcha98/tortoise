@@ -63,8 +63,8 @@ public class DefaultCore implements Core {
     }
 
     @Override
-    public void setRunanber(Runnable runanber) {
-        this.runnable = runanber;
+    public void setRunnable(Runnable runnable) {
+        this.runnable = runnable;
     }
 
     @Override
@@ -114,20 +114,11 @@ public class DefaultCore implements Core {
         remoteConfig.setHost(turtlesConfig.getBrokerHost());
         remoteConfig.setPort(turtlesConfig.getBrokerPort());
         remoteClient = new RemoteClient(remoteConfig);
-        try {
-            remoteClient.start();
-        } catch (Exception e) {
-            //TODO
-        }
-
+        remoteClient.start();
     }
 
     @Override
     public void close() {
-        try {
-            remoteClient.close();
-        } catch (Exception e) {
-            //TODO
-        }
+        remoteClient.close();
     }
 }

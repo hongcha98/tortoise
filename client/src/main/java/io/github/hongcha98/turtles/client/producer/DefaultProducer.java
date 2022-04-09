@@ -6,6 +6,7 @@ import io.github.hongcha98.turtles.client.config.TurtlesConfig;
 import io.github.hongcha98.turtles.common.dto.message.MessageAddRequest;
 
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 
 public class DefaultProducer extends AbstractClientApi implements Producer {
@@ -24,6 +25,11 @@ public class DefaultProducer extends AbstractClientApi implements Producer {
         req.setHeader(header);
         req.setBody(getProtocol().encode(msg));
         return getCore().send(req);
+    }
+
+    @Override
+    public CompletableFuture<String> asyncSend(String topic, Map<String, String> header, Object msg) {
+        return asyncSend(() -> send(topic, header, msg));
     }
 
 }

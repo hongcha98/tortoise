@@ -31,9 +31,19 @@ public class TurtlesConfig {
      */
     private Coding coding = new DefaultCoding();
 
-    private String username = "turtles";
+    private String username = Constant.USERNAME;
 
-    private String password = "turtles";
+    private String password = Constant.PASSWORD;
+
+    private long messageRetentionTime = Constant.MESSAGE_RETENTION_TIME;
+
+    public long getMessageRetentionTime() {
+        return messageRetentionTime;
+    }
+
+    public void setMessageRetentionTime(long messageRetentionTime) {
+        this.messageRetentionTime = messageRetentionTime;
+    }
 
     public int getId() {
         return id;

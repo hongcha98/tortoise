@@ -1,6 +1,6 @@
 package io.github.hongcha98.turtles.broker.offset;
 
-import io.github.hongcha98.turtles.broker.error.TopicNotExistsException;
+import io.github.hongcha98.turtles.common.error.TopicNotExistsException;
 import io.github.hongcha98.turtles.broker.topic.Topic;
 import io.github.hongcha98.turtles.broker.topic.TopicManage;
 

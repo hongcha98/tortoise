@@ -3,7 +3,7 @@ package io.github.hongcha98.turtles.broker.offset;
 import io.github.hongcha98.remote.common.spi.SpiLoader;
 import io.github.hongcha98.remote.protocol.Protocol;
 import io.github.hongcha98.turtles.broker.constant.Constant;
-import io.github.hongcha98.turtles.broker.error.TurtlesException;
+import io.github.hongcha98.turtles.common.error.TurtlesException;
 import io.github.hongcha98.turtles.broker.topic.TopicManage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

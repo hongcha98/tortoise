@@ -3,7 +3,7 @@ package io.github.hongcha98.turtles.broker.process.message;
 import io.github.hongcha98.remote.common.Message;
 import io.github.hongcha98.remote.core.util.ProtocolUtils;
 import io.github.hongcha98.turtles.broker.TurtlesBroker;
-import io.github.hongcha98.turtles.broker.error.TopicException;
+import io.github.hongcha98.turtles.common.error.TopicException;
 import io.github.hongcha98.turtles.broker.process.AbstractProcess;
 import io.github.hongcha98.turtles.broker.topic.Topic;
 import io.github.hongcha98.turtles.common.dto.message.MessageAddRequest;

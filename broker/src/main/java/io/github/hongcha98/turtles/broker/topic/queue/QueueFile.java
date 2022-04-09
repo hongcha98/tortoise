@@ -2,7 +2,7 @@ package io.github.hongcha98.turtles.broker.topic.queue;
 
 import io.github.hongcha98.turtles.broker.LifeCycle;
 import io.github.hongcha98.turtles.broker.constant.Constant;
-import io.github.hongcha98.turtles.broker.error.TurtlesException;
+import io.github.hongcha98.turtles.common.error.TurtlesException;
 import io.github.hongcha98.turtles.common.dto.message.Message;
 import io.github.hongcha98.turtles.common.dto.message.MessageInfo;
 
@@ -50,9 +50,9 @@ public class QueueFile implements LifeCycle {
     }
 
     private void initOffset() {
-        int offset = this.mappedByteBuffer.getInt(0);
+        int offset = this.mappedByteBuffer.getInt(Constant.FILE_LENGTH_INDEX);
         if (offset == 0) {
-            offset = Constant.OFFSET_INIT;
+            offset = Constant.FILE_LENGTH;
         }
         mappedByteBuffer.position(offset);
     }
@@ -67,7 +67,7 @@ public class QueueFile implements LifeCycle {
     public MessageInfo getMessage(int offset) {
         boolean isLock = false;
         try {
-            isLock = readLock.tryLock(500, TimeUnit.MILLISECONDS);
+            isLock = readLock.tryLock(Constant.QUEUE_FILE_TRY_LOCK_TIME, TimeUnit.MILLISECONDS);
             return coding.decode(mappedByteBuffer, offset);
         } catch (InterruptedException e) {
             throw new TurtlesException(e);
@@ -86,7 +86,7 @@ public class QueueFile implements LifeCycle {
     public int addMessage(Message message) {
         boolean isLock = false;
         try {
-            isLock = writeLock.tryLock(500, TimeUnit.MILLISECONDS);
+            isLock = writeLock.tryLock(Constant.QUEUE_FILE_TRY_LOCK_TIME, TimeUnit.MILLISECONDS);
             int offset = mappedByteBuffer.position();
             if ((double) offset / (double) mappedByteBuffer.capacity() >= Constant.QUEUE_FILE_SIZE_EXPANSION_PERCENTAGE) {
                 this.mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, 0, mappedByteBuffer.capacity() + Constant.QUEUE_FILE_ADD_SIZE);
@@ -94,7 +94,7 @@ public class QueueFile implements LifeCycle {
             }
             byte[] encode = coding.encode(message);
             mappedByteBuffer.put(encode);
-            mappedByteBuffer.putInt(0, mappedByteBuffer.position());
+            mappedByteBuffer.putInt(Constant.FILE_LENGTH_INDEX, mappedByteBuffer.position());
             return offset;
         } catch (Exception e) {
             throw new TurtlesException(e);

@@ -6,7 +6,7 @@ import io.github.hongcha98.turtles.broker.config.TurtlesConfig;
 import io.github.hongcha98.turtles.broker.constant.Constant;
 import io.github.hongcha98.turtles.broker.context.ChannelContextManage;
 import io.github.hongcha98.turtles.broker.context.DefaultChannelContextManage;
-import io.github.hongcha98.turtles.broker.error.TurtlesException;
+import io.github.hongcha98.turtles.common.error.TurtlesException;
 import io.github.hongcha98.turtles.broker.offset.FileOffsetManage;
 import io.github.hongcha98.turtles.broker.offset.OffsetManage;
 import io.github.hongcha98.turtles.broker.process.LoginProcess;

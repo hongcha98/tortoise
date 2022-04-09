@@ -11,6 +11,7 @@ public class PullConsumerTest {
         Consumer consumer = new PullDefaultConsumer(turtlesConfig);
         consumer.subscription("test-topic", message -> {
             System.out.println("message = " + message);
+            return true;
         });
         consumer.start();
     }

@@ -30,14 +30,12 @@ public interface Producer extends ClientApi {
     /**
      * 异步发送
      */
-    default CompletableFuture<String> sendAsync(String topic, Object msg) {
-        return sendAsync(topic, Collections.emptyMap(), msg);
+    default CompletableFuture<String> asyncSend(String topic, Object msg) {
+        return asyncSend(topic, Collections.emptyMap(), msg);
     }
 
     /**
      * 异步发送
      */
-    default CompletableFuture<String> sendAsync(String topic, Map<String, String> header, Object msg) {
-        return CompletableFuture.supplyAsync(() -> send(topic, header, msg));
-    }
+    CompletableFuture<String> asyncSend(String topic, Map<String, String> header, Object msg);
 }

@@ -16,24 +16,29 @@ public class SessionTask extends AbstractTask {
 
     @Override
     public void run() {
-        SessionManage sessionManage = getBroker().getSessionManage();
-        ChannelContextManage channelContextManage = getBroker().getChannelContextManage();
-        Map<Channel, ChannelContext> allChannelContext = channelContextManage.getAllChannelContext();
-        allChannelContext.forEach((channel, channelContext) -> {
-            boolean active = channel.isActive();
-            String groupName = channelContext.getGroupName();
-            if (!active) {
-                channelContextManage.deleteChannelContext(channel);
-            }
-            boolean subscription = active && groupName != null;
-            Set<String> topicNames = channelContext.getTopicNames();
-            for (String topicName : topicNames) {
-                if (subscription) {
-                    sessionManage.subscription(topicName, groupName, channel);
-                } else {
-                    sessionManage.unSubscription(topicName, groupName, channel);
+        try {
+            SessionManage sessionManage = getBroker().getSessionManage();
+            ChannelContextManage channelContextManage = getBroker().getChannelContextManage();
+            Map<Channel, ChannelContext> allChannelContext = channelContextManage.getAllChannelContext();
+            allChannelContext.forEach((channel, channelContext) -> {
+                boolean active = channel.isActive();
+                String groupName = channelContext.getGroupName();
+                if (!active) {
+                    channelContextManage.deleteChannelContext(channel);
                 }
-            }
-        });
+                boolean subscription = active && groupName != null;
+                Set<String> topicNames = channelContext.getTopicNames();
+                for (String topicName : topicNames) {
+                    if (subscription) {
+                        sessionManage.subscription(topicName, groupName, channel);
+                    } else {
+                        sessionManage.unSubscription(topicName, groupName, channel);
+                    }
+                }
+            });
+        } catch (Exception e) {
+            log.error("session task error", e);
+        }
+
     }
 }

@@ -1,4 +1,4 @@
-package io.github.hongcha98.turtles.broker.error;
+package io.github.hongcha98.turtles.common.error;
 
 public class TurtlesException extends RuntimeException {
 

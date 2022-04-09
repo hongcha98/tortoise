@@ -7,7 +7,11 @@ import io.github.hongcha98.turtles.common.dto.topic.TopicCreateRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 public abstract class AbstractClientApi implements ClientApi {
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -18,7 +22,10 @@ public abstract class AbstractClientApi implements ClientApi {
 
     private final Protocol protocol;
 
-    private final Core core;
+    private Core core;
+
+    private ExecutorService sendExecutorService;
+
 
     public AbstractClientApi(TurtlesConfig turtlesConfig) {
         this(turtlesConfig, SpiLoader.load(Protocol.class, 2));
@@ -29,7 +36,6 @@ public abstract class AbstractClientApi implements ClientApi {
     public AbstractClientApi(TurtlesConfig turtlesConfig, Protocol protocol) {
         this.turtlesConfig = turtlesConfig;
         this.protocol = protocol;
-        this.core = new DefaultCore(turtlesConfig);
     }
 
     protected void checkConfig(TurtlesConfig turtlesConfig) {
@@ -56,14 +62,19 @@ public abstract class AbstractClientApi implements ClientApi {
         return core.deleteTopic(topic);
     }
 
+    protected <T> CompletableFuture<T> asyncSend(Supplier<T> supplier) {
+        return CompletableFuture.supplyAsync(supplier, sendExecutorService);
+    }
+
     @Override
     public void start() {
         if (start.compareAndSet(false, true)) {
             try {
+                core = new DefaultCore(turtlesConfig);
+                sendExecutorService = Executors.newFixedThreadPool(getTurtlesConfig().getSendThreadNum());
                 core.start();
                 doStart();
             } catch (Exception e) {
-                close();
                 throw new IllegalStateException("start error", e);
             }
         }
@@ -73,10 +84,10 @@ public abstract class AbstractClientApi implements ClientApi {
 
     }
 
-
     @Override
     public void close() {
         if (start.compareAndSet(false, true)) {
+            sendExecutorService.shutdown();
             core.close();
             doClose();
         }
@@ -93,4 +104,5 @@ public abstract class AbstractClientApi implements ClientApi {
     public Core getCore() {
         return core;
     }
+
 }

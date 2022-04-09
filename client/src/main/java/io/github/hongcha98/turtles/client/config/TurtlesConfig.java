@@ -12,6 +12,27 @@ public class TurtlesConfig {
 
     private String groupName;
 
+    private int sendThreadNum = 32;
+
+    // 没有消息时下一次拉取消息的间隔
+    private int pullMessageInterval = 300;
+
+    public int getPullMessageInterval() {
+        return pullMessageInterval;
+    }
+
+    public void setPullMessageInterval(int pullMessageInterval) {
+        this.pullMessageInterval = pullMessageInterval;
+    }
+
+    public int getSendThreadNum() {
+        return sendThreadNum;
+    }
+
+    public void setSendThreadNum(int sendThreadNum) {
+        this.sendThreadNum = sendThreadNum;
+    }
+
     public String getUsername() {
         return username;
     }

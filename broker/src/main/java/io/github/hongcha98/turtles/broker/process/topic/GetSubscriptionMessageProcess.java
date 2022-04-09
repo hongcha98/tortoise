@@ -1,10 +1,10 @@
 package io.github.hongcha98.turtles.broker.process.topic;
 
+import io.github.hongcha98.remote.common.Message;
 import io.github.hongcha98.turtles.broker.TurtlesBroker;
 import io.github.hongcha98.turtles.broker.context.ChannelContext;
 import io.github.hongcha98.turtles.broker.process.AbstractProcess;
 import io.github.hongcha98.turtles.common.dto.topic.SubscriptionInfoResponse;
-import io.github.hongcha98.remote.common.Message;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 
