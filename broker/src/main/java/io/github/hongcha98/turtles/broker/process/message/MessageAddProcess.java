@@ -6,7 +6,7 @@ import io.github.hongcha98.turtles.broker.TurtlesBroker;
 import io.github.hongcha98.turtles.broker.error.TopicException;
 import io.github.hongcha98.turtles.broker.process.AbstractProcess;
 import io.github.hongcha98.turtles.broker.topic.Topic;
-import io.github.hongcha98.turtles.common.dto.message.MessageAddReq;
+import io.github.hongcha98.turtles.common.dto.message.MessageAddRequest;
 import io.netty.channel.ChannelHandlerContext;
 
 import java.util.ArrayList;
@@ -25,18 +25,18 @@ public class MessageAddProcess extends AbstractProcess {
 
     @Override
     protected void doProcess(ChannelHandlerContext channelHandlerContext, Message message) {
-        MessageAddReq messageAddReq = ProtocolUtils.decode(message, MessageAddReq.class);
+        MessageAddRequest messageAddRequest = ProtocolUtils.decode(message, MessageAddRequest.class);
         Topic topic;
         try {
-            topic = getBroker().getTopicManage().getTopic(messageAddReq.getTopicName());
+            topic = getBroker().getTopicManage().getTopic(messageAddRequest.getTopicName());
         } catch (TopicException e) {
             responseException(channelHandlerContext, message, e);
             return;
         }
         io.github.hongcha98.turtles.common.dto.message.Message add = new io.github.hongcha98.turtles.common.dto.message.Message();
         add.setId(UUID.randomUUID().toString());
-        add.setHeader(messageAddReq.getHeader());
-        add.setBody(messageAddReq.getBody());
+        add.setHeader(messageAddRequest.getHeader());
+        add.setBody(messageAddRequest.getBody());
         ArrayList<Integer> queueIds = new ArrayList<>(topic.getQueuesId());
         AtomicInteger positionAtomic = topicPolling.computeIfAbsent(topic.getName(), t -> new AtomicInteger(0));
         int position = positionAtomic.getAndIncrement();

@@ -3,7 +3,7 @@ package io.github.hongcha98.turtles.broker.process.topic;
 import io.github.hongcha98.turtles.broker.TurtlesBroker;
 import io.github.hongcha98.turtles.broker.context.ChannelContext;
 import io.github.hongcha98.turtles.broker.process.AbstractProcess;
-import io.github.hongcha98.turtles.common.dto.topic.UnSubscriptionMessageReq;
+import io.github.hongcha98.turtles.common.dto.topic.UnSubscriptionRequest;
 import io.github.hongcha98.remote.common.Message;
 import io.github.hongcha98.remote.core.util.ProtocolUtils;
 import io.netty.channel.ChannelHandlerContext;
@@ -17,10 +17,10 @@ public class UnSubscriptionProcess extends AbstractProcess {
 
     @Override
     protected void doProcess(ChannelHandlerContext channelHandlerContext, Message message) {
-        UnSubscriptionMessageReq unSubscriptionMessageReq = ProtocolUtils.decode(message, UnSubscriptionMessageReq.class);
+        UnSubscriptionRequest unSubscriptionRequest = ProtocolUtils.decode(message, UnSubscriptionRequest.class);
         ChannelContext channelContext = getBroker().getChannelContextManage().getChannelContext(channelHandlerContext.channel());
-        if (Objects.equals(channelContext.getGroupName(), unSubscriptionMessageReq.getGroupName())) {
-            channelContext.getTopicNames().removeAll(unSubscriptionMessageReq.getTopicNames());
+        if (Objects.equals(channelContext.getGroupName(), unSubscriptionRequest.getGroupName())) {
+            channelContext.getTopicNames().removeAll(unSubscriptionRequest.getTopicNames());
         }
         response(channelHandlerContext, message, true);
     }

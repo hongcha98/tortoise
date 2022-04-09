@@ -33,8 +33,12 @@ public class QueueFile implements LifeCycle {
     public QueueFile(File file, Integer id, Coding coding) {
         try {
             this.id = id;
+            long fileLength = Constant.QUEUE_FILE_ADD_SIZE;
+            if (file.exists()) {
+                fileLength = file.length();
+            }
             fileChannel = new RandomAccessFile(file, "rw").getChannel();
-            this.mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, 0, Constant.QUEUE_FILE_ADD_SIZE);
+            this.mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, 0, fileLength);
             this.coding = coding;
             reentrantReadWriteLock = new ReentrantReadWriteLock();
             readLock = reentrantReadWriteLock.readLock();
@@ -84,11 +88,15 @@ public class QueueFile implements LifeCycle {
         try {
             isLock = writeLock.tryLock(500, TimeUnit.MILLISECONDS);
             int offset = mappedByteBuffer.position();
+            if ((double) offset / (double) mappedByteBuffer.capacity() >= Constant.QUEUE_FILE_SIZE_EXPANSION_PERCENTAGE) {
+                this.mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, 0, mappedByteBuffer.capacity() + Constant.QUEUE_FILE_ADD_SIZE);
+                mappedByteBuffer.position(offset);
+            }
             byte[] encode = coding.encode(message);
             mappedByteBuffer.put(encode);
             mappedByteBuffer.putInt(0, mappedByteBuffer.position());
             return offset;
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             throw new TurtlesException(e);
         } finally {
             if (isLock) {

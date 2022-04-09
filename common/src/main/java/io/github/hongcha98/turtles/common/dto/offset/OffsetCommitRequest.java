@@ -1,6 +1,6 @@
 package io.github.hongcha98.turtles.common.dto.offset;
 
-public class OffsetCommitReq {
+public class OffsetCommitRequest {
     private String topicName;
     private int queueId;
     private int offset;

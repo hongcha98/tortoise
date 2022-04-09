@@ -3,7 +3,7 @@ package io.github.hongcha98.turtles.client;
 import io.github.hongcha98.remote.common.spi.SpiLoader;
 import io.github.hongcha98.remote.protocol.Protocol;
 import io.github.hongcha98.turtles.client.config.TurtlesConfig;
-import io.github.hongcha98.turtles.common.dto.topic.TopicCreateMessageReq;
+import io.github.hongcha98.turtles.common.dto.topic.TopicCreateRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,10 +45,10 @@ public abstract class AbstractClientApi implements ClientApi {
 
     @Override
     public boolean createTopic(String topic, int queueNumber) {
-        TopicCreateMessageReq topicCreateMessageReq = new TopicCreateMessageReq();
-        topicCreateMessageReq.setTopicName(topic);
-        topicCreateMessageReq.setQueueNumber(queueNumber);
-        return core.createTopic(topicCreateMessageReq);
+        TopicCreateRequest topicCreateRequest = new TopicCreateRequest();
+        topicCreateRequest.setTopicName(topic);
+        topicCreateRequest.setQueueNumber(queueNumber);
+        return core.createTopic(topicCreateRequest);
     }
 
     @Override

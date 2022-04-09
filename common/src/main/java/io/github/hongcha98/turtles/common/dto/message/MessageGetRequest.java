@@ -1,9 +1,6 @@
 package io.github.hongcha98.turtles.common.dto.message;
 
-/**
- *
- */
-public class MessageGetReq {
+public class MessageGetRequest {
     private String topicName;
 
     public String getTopicName() {

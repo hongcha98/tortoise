@@ -1,5 +1,7 @@
 package io.github.hongcha98.turtles.broker.constant;
 
+import io.github.hongcha98.remote.common.constant.RemoteConstant;
+
 public class Constant {
     public static final String NAME = "turtles";
 
@@ -7,9 +9,7 @@ public class Constant {
 
     public static final double QUEUE_FILE_SIZE_EXPANSION_PERCENTAGE = 0.75;
 
-    public static final int PROTOCOL_CODE = 2;
-
-    public static final String DELIMITER = "-";
+    public static final int PROTOCOL_CODE = RemoteConstant.DEFAULT_PROTOCOL;
 
     public static final String FILE_NAME_SUFFIX = "." + NAME;
 

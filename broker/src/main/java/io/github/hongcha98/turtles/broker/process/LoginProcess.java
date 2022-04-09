@@ -1,11 +1,11 @@
 package io.github.hongcha98.turtles.broker.process;
 
+import io.github.hongcha98.remote.common.Message;
+import io.github.hongcha98.remote.core.util.ProtocolUtils;
 import io.github.hongcha98.turtles.broker.TurtlesBroker;
 import io.github.hongcha98.turtles.broker.config.TurtlesConfig;
 import io.github.hongcha98.turtles.broker.context.ChannelContext;
-import io.github.hongcha98.turtles.common.dto.login.LoginMessageReq;
-import io.github.hongcha98.remote.common.Message;
-import io.github.hongcha98.remote.core.util.ProtocolUtils;
+import io.github.hongcha98.turtles.common.dto.login.LoginRequest;
 import io.netty.channel.ChannelHandlerContext;
 
 import java.util.Objects;
@@ -22,12 +22,12 @@ public class LoginProcess extends AbstractProcess {
 
     @Override
     public void doProcess(ChannelHandlerContext channelHandlerContext, Message message) {
-        LoginMessageReq loginMessageReq = ProtocolUtils.decode(message, LoginMessageReq.class);
+        LoginRequest loginRequest = ProtocolUtils.decode(message, LoginRequest.class);
         TurtlesConfig turtlesConfig = getBroker().getTurtlesConfig();
-        boolean flag = Objects.equals(turtlesConfig.getUsername(), loginMessageReq.getUsername()) && Objects.equals(turtlesConfig.getPassword(), loginMessageReq.getPassword());
-        response(channelHandlerContext, message, flag);
+        boolean flag = Objects.equals(turtlesConfig.getUsername(), loginRequest.getUsername()) && Objects.equals(turtlesConfig.getPassword(), loginRequest.getPassword());
         ChannelContext channelContext = getBroker().getChannelContextManage().getChannelContext(channelHandlerContext.channel());
         channelContext.setLoginFlag(flag);
+        response(channelHandlerContext, message, flag);
     }
 
 }

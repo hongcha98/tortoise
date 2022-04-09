@@ -3,7 +3,7 @@ package io.github.hongcha98.turtles.common.dto.message;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MessageAddReq {
+public class MessageAddRequest {
     private String topicName;
     private Map<String, String> header = new HashMap<>();
     /**

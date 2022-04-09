@@ -2,7 +2,7 @@ package io.github.hongcha98.turtles.common.dto.topic;
 
 import java.util.Set;
 
-public class UnSubscriptionMessageReq {
+public class SubscriptionRequest {
     private String groupName;
 
     private Set<String> topicNames;

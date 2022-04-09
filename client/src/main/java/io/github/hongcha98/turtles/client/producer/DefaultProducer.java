@@ -3,7 +3,7 @@ package io.github.hongcha98.turtles.client.producer;
 import io.github.hongcha98.remote.protocol.Protocol;
 import io.github.hongcha98.turtles.client.AbstractClientApi;
 import io.github.hongcha98.turtles.client.config.TurtlesConfig;
-import io.github.hongcha98.turtles.common.dto.message.MessageAddReq;
+import io.github.hongcha98.turtles.common.dto.message.MessageAddRequest;
 
 import java.util.Map;
 
@@ -19,7 +19,7 @@ public class DefaultProducer extends AbstractClientApi implements Producer {
 
     @Override
     public String send(String topic, Map<String, String> header, Object msg) {
-        MessageAddReq req = new MessageAddReq();
+        MessageAddRequest req = new MessageAddRequest();
         req.setTopicName(topic);
         req.setHeader(header);
         req.setBody(getProtocol().encode(msg));

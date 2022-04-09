@@ -3,7 +3,7 @@ package io.github.hongcha98.turtles.broker.process.topic;
 import io.github.hongcha98.turtles.broker.TurtlesBroker;
 import io.github.hongcha98.turtles.broker.context.ChannelContext;
 import io.github.hongcha98.turtles.broker.process.AbstractProcess;
-import io.github.hongcha98.turtles.common.dto.topic.GetSubscriptionMessageResp;
+import io.github.hongcha98.turtles.common.dto.topic.SubscriptionInfoResponse;
 import io.github.hongcha98.remote.common.Message;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -22,7 +22,7 @@ public class GetSubscriptionMessageProcess extends AbstractProcess {
         Channel channel = channelHandlerContext.channel();
         ChannelContext channelContext = getBroker().getChannelContextManage().getChannelContext(channel);
         String groupName = channelContext.getGroupName();
-        GetSubscriptionMessageResp resp = new GetSubscriptionMessageResp();
+        SubscriptionInfoResponse resp = new SubscriptionInfoResponse();
         Map<String, Set<Integer>> topicQueuesIdMap = new HashMap<>();
         channelContext.getTopicNames().stream().forEach(topicName -> {
             Set<Integer> allocate = getBroker().getSessionManage().getAllocate(topicName, groupName, channel);

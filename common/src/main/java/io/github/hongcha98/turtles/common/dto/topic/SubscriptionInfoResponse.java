@@ -3,7 +3,7 @@ package io.github.hongcha98.turtles.common.dto.topic;
 import java.util.Map;
 import java.util.Set;
 
-public class GetSubscriptionMessageResp {
+public class SubscriptionInfoResponse {
 
     Map<String, Set<Integer>> topicQueuesIdMap;
 

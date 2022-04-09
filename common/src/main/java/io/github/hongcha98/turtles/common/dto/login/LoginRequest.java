@@ -1,6 +1,6 @@
 package io.github.hongcha98.turtles.common.dto.login;
 
-public class LoginMessageReq {
+public class LoginRequest {
 
     private String username;
 

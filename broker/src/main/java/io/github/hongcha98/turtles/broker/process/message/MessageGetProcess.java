@@ -7,8 +7,8 @@ import io.github.hongcha98.turtles.broker.context.ChannelContext;
 import io.github.hongcha98.turtles.broker.offset.OffsetManage;
 import io.github.hongcha98.turtles.broker.process.AbstractProcess;
 import io.github.hongcha98.turtles.broker.topic.Topic;
-import io.github.hongcha98.turtles.common.dto.message.MessageGetReq;
-import io.github.hongcha98.turtles.common.dto.message.MessageGetResp;
+import io.github.hongcha98.turtles.common.dto.message.MessageGetRequest;
+import io.github.hongcha98.turtles.common.dto.message.MessageGetResponse;
 import io.github.hongcha98.turtles.common.dto.message.MessageInfo;
 import io.netty.channel.ChannelHandlerContext;
 
@@ -22,22 +22,22 @@ public class MessageGetProcess extends AbstractProcess {
 
     @Override
     protected void doProcess(ChannelHandlerContext channelHandlerContext, Message message) {
-        MessageGetReq messageGetReq = ProtocolUtils.decode(message, MessageGetReq.class);
-        MessageGetResp messageGetResp = new MessageGetResp();
+        MessageGetRequest messageGetRequest = ProtocolUtils.decode(message, MessageGetRequest.class);
+        MessageGetResponse messageGetResponse = new MessageGetResponse();
         ChannelContext channelContext = getBroker().getChannelContextManage().getChannelContext(channelHandlerContext.channel());
         String groupName = channelContext.getGroupName();
-        String topicName = messageGetReq.getTopicName();
+        String topicName = messageGetRequest.getTopicName();
         Topic topic = getBroker().getTopicManage().getTopic(topicName);
         OffsetManage offsetManage = getBroker().getOffsetManage();
         Set<Integer> queueIds = getBroker().getSessionManage().getAllocate(topicName, groupName, channelHandlerContext.channel());
         Map<Integer, Integer> queueIdOffsetMap = offsetManage.getOffset(topicName, groupName);
-        Map<Integer, MessageInfo> queueIdMessageMap = messageGetResp.getQueueIdMessageMap();
+        Map<Integer, MessageInfo> queueIdMessageMap = messageGetResponse.getQueueIdMessageMap();
         for (Integer queueId : queueIds) {
             MessageInfo messageInfo = topic.getMessage(queueId, queueIdOffsetMap.get(queueId));
             if (messageInfo != null) {
                 queueIdMessageMap.put(queueId, messageInfo);
             }
         }
-        response(channelHandlerContext, message, messageGetResp);
+        response(channelHandlerContext, message, messageGetResponse);
     }
 }

@@ -140,16 +140,35 @@ public class TurtlesBroker implements LifeCycle {
      * 注册处理器
      */
     protected void registryProcess() {
+        /**
+         * session相关
+         */
         remoteServer.registerProcess(PROCESS_LOGIN, new LoginProcess(this), sessionExecutorService);
         remoteServer.registerProcess(PROCESS_SUBSCRIPTION, new SubscriptionProcess(this), sessionExecutorService);
         remoteServer.registerProcess(PROCESS_UNSUBSCRIPTION, new UnSubscriptionProcess(this), sessionExecutorService);
-        remoteServer.registerProcess(PROCESS_GET_SUBSCRIPTION, new GetSubscriptionMessageProcess(this), sessionExecutorService);
-        remoteServer.registerProcess(PROCESS_GET_MESSAGE, new MessageGetProcess(this), messageExecutorService);
-        remoteServer.registerProcess(PROCESS_TOPIC_MESSAGE_ADD, new MessageAddProcess(this), messageExecutorService);
-        remoteServer.registerProcess(PROCESS_GET_OFFSET, new GetOffsetProcess(this), offsetExecutorService);
+        remoteServer.registerProcess(PROCESS_SUBSCRIPTION_INFO, new GetSubscriptionMessageProcess(this), sessionExecutorService);
+
+        /**
+         * message相关
+         */
+
+        remoteServer.registerProcess(PROCESS_MESSAGE_SESSION_PULL, new MessageGetProcess(this), messageExecutorService);
+        remoteServer.registerProcess(PROCESS_MESSAGE_ADD, new MessageAddProcess(this), messageExecutorService);
+
+        /**
+         * offset 相关
+         */
+
+        remoteServer.registerProcess(PROCESS_OFFSET_GET, new GetOffsetProcess(this), offsetExecutorService);
+        remoteServer.registerProcess(PROCESS_OFFSET_COMMIT, new OffsetCommitProcess(this), offsetExecutorService);
+
+        /**
+         * topic相关
+         */
+
         remoteServer.registerProcess(PROCESS_TOPIC_CREATE, new TopicCreateProcess(this), topicExecutorService);
         remoteServer.registerProcess(PROCESS_TOPIC_DELETE, new TopicDeleteProcess(this), topicExecutorService);
-        remoteServer.registerProcess(PROCESS_COMMIT_OFFSET, new OffsetCommitProcess(this), offsetExecutorService);
+
     }
 
     protected void doStart() {

@@ -1,11 +1,9 @@
 package io.github.hongcha98.turtles.broker.process;
 
+import io.github.hongcha98.remote.common.Message;
+import io.github.hongcha98.remote.common.process.Process;
 import io.github.hongcha98.turtles.broker.TurtlesBroker;
 import io.github.hongcha98.turtles.broker.context.ChannelContext;
-import io.github.hongcha98.remote.common.Message;
-import io.github.hongcha98.remote.common.constant.RemoteConstant;
-import io.github.hongcha98.remote.common.exception.RemoteExceptionBody;
-import io.github.hongcha98.remote.common.process.Process;
 import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,8 +53,7 @@ public abstract class AbstractProcess implements Process {
     }
 
     protected void responseException(ChannelHandlerContext channelHandlerContext, Message message, Exception exception) {
-        RemoteExceptionBody remoteExceptionBody = new RemoteExceptionBody(exception);
-        Message resp = getBroker().getRemoteServer().buildResponse(message, remoteExceptionBody, RemoteConstant.ERROR_CODE);
+        Message resp = getBroker().getRemoteServer().buildError(message, exception);
         channelHandlerContext.writeAndFlush(resp);
     }
 }

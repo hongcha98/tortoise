@@ -1,6 +1,6 @@
 package io.github.hongcha98.turtles.common.dto.topic;
 
-public class TopicCreateMessageReq {
+public class TopicCreateRequest {
     private String topicName;
     private int queueNumber;
 

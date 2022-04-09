@@ -4,10 +4,10 @@ import io.github.hongcha98.remote.protocol.Protocol;
 import io.github.hongcha98.turtles.client.AbstractClientApi;
 import io.github.hongcha98.turtles.client.config.TurtlesConfig;
 import io.github.hongcha98.turtles.common.dto.message.Message;
-import io.github.hongcha98.turtles.common.dto.message.MessageGetReq;
-import io.github.hongcha98.turtles.common.dto.message.MessageGetResp;
-import io.github.hongcha98.turtles.common.dto.offset.OffsetCommitReq;
-import io.github.hongcha98.turtles.common.dto.topic.SubscriptionMessageReq;
+import io.github.hongcha98.turtles.common.dto.message.MessageGetRequest;
+import io.github.hongcha98.turtles.common.dto.message.MessageGetResponse;
+import io.github.hongcha98.turtles.common.dto.offset.OffsetCommitRequest;
+import io.github.hongcha98.turtles.common.dto.topic.SubscriptionRequest;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -47,19 +47,19 @@ public class PullDefaultConsumer extends AbstractClientApi implements Consumer {
     }
 
     private void topicPullMessage(String topic, MessageListener messageListener) {
-        MessageGetReq messageGetReq = new MessageGetReq();
-        messageGetReq.setTopicName(topic);
-        MessageGetResp messageGetResp = getCore().pullMessage(messageGetReq);
-        messageGetResp.getQueueIdMessageMap().forEach((queueId, messageInfo) -> {
+        MessageGetRequest messageGetRequest = new MessageGetRequest();
+        messageGetRequest.setTopicName(topic);
+        MessageGetResponse messageGetResponse = getCore().pullMessage(messageGetRequest);
+        messageGetResponse.getQueueIdMessageMap().forEach((queueId, messageInfo) -> {
             Message message = messageInfo.getMessage();
             if (message != null) {
                 try {
                     messageListener.listener(message);
-                    OffsetCommitReq offsetCommitReq = new OffsetCommitReq();
-                    offsetCommitReq.setTopicName(topic);
-                    offsetCommitReq.setQueueId(queueId);
-                    offsetCommitReq.setOffset(messageInfo.getNextOffset());
-                    if (!getCore().commitOffset(offsetCommitReq)) {
+                    OffsetCommitRequest offsetCommitRequest = new OffsetCommitRequest();
+                    offsetCommitRequest.setTopicName(topic);
+                    offsetCommitRequest.setQueueId(queueId);
+                    offsetCommitRequest.setOffset(messageInfo.getNextOffset());
+                    if (!getCore().commitOffset(offsetCommitRequest)) {
                         log.error("topic : {} , group :{} ,msg id : {} commit error", topic, getTurtlesConfig().getGroupName(), message.getId());
                     }
                 } catch (Exception e) {
@@ -87,10 +87,10 @@ public class PullDefaultConsumer extends AbstractClientApi implements Consumer {
     }
 
     protected void doSubscription() {
-        SubscriptionMessageReq subscriptionMessageReq = new SubscriptionMessageReq();
-        subscriptionMessageReq.setGroupName(getTurtlesConfig().getGroupName());
-        subscriptionMessageReq.setTopicNames(new HashSet<>(messageListenerMap.keySet()));
-        if (!getCore().subscription(subscriptionMessageReq)) {
+        SubscriptionRequest subscriptionRequest = new SubscriptionRequest();
+        subscriptionRequest.setGroupName(getTurtlesConfig().getGroupName());
+        subscriptionRequest.setTopicNames(new HashSet<>(messageListenerMap.keySet()));
+        if (!getCore().subscription(subscriptionRequest)) {
             log.info("subscription error");
         }
     }

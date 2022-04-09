@@ -1,14 +1,14 @@
 package io.github.hongcha98.turtles.client;
 
-import io.github.hongcha98.turtles.common.dto.message.MessageAddReq;
-import io.github.hongcha98.turtles.common.dto.message.MessageGetReq;
-import io.github.hongcha98.turtles.common.dto.message.MessageGetResp;
-import io.github.hongcha98.turtles.common.dto.offset.OffsetCommitReq;
-import io.github.hongcha98.turtles.common.dto.offset.OffsetGetReq;
-import io.github.hongcha98.turtles.common.dto.topic.GetSubscriptionMessageReq;
-import io.github.hongcha98.turtles.common.dto.topic.GetSubscriptionMessageResp;
-import io.github.hongcha98.turtles.common.dto.topic.SubscriptionMessageReq;
-import io.github.hongcha98.turtles.common.dto.topic.TopicCreateMessageReq;
+import io.github.hongcha98.turtles.common.dto.message.MessageAddRequest;
+import io.github.hongcha98.turtles.common.dto.message.MessageGetRequest;
+import io.github.hongcha98.turtles.common.dto.message.MessageGetResponse;
+import io.github.hongcha98.turtles.common.dto.offset.OffsetCommitRequest;
+import io.github.hongcha98.turtles.common.dto.offset.OffsetGetRequest;
+import io.github.hongcha98.turtles.common.dto.topic.SubscriptionInfoRequest;
+import io.github.hongcha98.turtles.common.dto.topic.SubscriptionInfoResponse;
+import io.github.hongcha98.turtles.common.dto.topic.SubscriptionRequest;
+import io.github.hongcha98.turtles.common.dto.topic.TopicCreateRequest;
 
 public interface Core extends LifeCycle {
     /**
@@ -18,35 +18,35 @@ public interface Core extends LifeCycle {
      */
     void setRunanber(Runnable runanber);
 
-    boolean subscription(SubscriptionMessageReq subscriptionMessageReq);
+    boolean subscription(SubscriptionRequest subscriptionRequest);
 
-    GetSubscriptionMessageResp getSubscriptionInfo(GetSubscriptionMessageReq getSubscriptionMessageReq);
+    SubscriptionInfoResponse getSubscriptionInfo(SubscriptionInfoRequest subscriptionInfoRequest);
 
-    boolean createTopic(TopicCreateMessageReq topicCreateMessageReq);
+    boolean createTopic(TopicCreateRequest topicCreateRequest);
 
     boolean deleteTopic(String topicName);
 
     /**
      * 返回消息id
      *
-     * @param messageAddReq
+     * @param messageAddRequest
      * @return
      */
-    String send(MessageAddReq messageAddReq);
+    String send(MessageAddRequest messageAddRequest);
 
     /**
      * 获取offset
      */
-    int getOffset(OffsetGetReq offsetGetReq);
+    int getOffset(OffsetGetRequest offsetGetRequest);
 
     /**
      * 设置偏移量
      */
-    boolean commitOffset(OffsetCommitReq offsetCommitReq);
+    boolean commitOffset(OffsetCommitRequest offsetCommitRequest);
 
     /**
      * 获取信息
      */
-    MessageGetResp pullMessage(MessageGetReq messageGetReq);
+    MessageGetResponse pullMessage(MessageGetRequest messageGetRequest);
 
 }
