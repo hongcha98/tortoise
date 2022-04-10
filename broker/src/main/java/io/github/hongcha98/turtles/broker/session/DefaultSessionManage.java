@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class DefaultSessionManage implements SessionManage {
-    private static final Logger log = LoggerFactory.getLogger(DefaultSessionManage.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultSessionManage.class);
 
     private final Map<Node, Map<Channel, Set<Integer>>> subscriptionNodeMap = new ConcurrentHashMap<>();
 
@@ -23,8 +23,8 @@ public class DefaultSessionManage implements SessionManage {
 
 
     @Override
-    public void subscription(String topicName, String groupName, Channel channel) {
-        Node node = new Node(topicName, groupName);
+    public void subscription(String topic, String group, Channel channel) {
+        Node node = new Node(topic, group);
         Map<Channel, Set<Integer>> channelQueuesMap = subscriptionNodeMap.computeIfAbsent(node, n -> new ConcurrentHashMap<>());
         if (!channelQueuesMap.containsKey(channel)) {
             channelQueuesMap.computeIfAbsent(channel, c -> new HashSet<>());
@@ -44,7 +44,7 @@ public class DefaultSessionManage implements SessionManage {
         // 消费者实例个数
         int size = channelQueueIdMap.size();
         if (size == 0) {
-            log.info("node :{} , no consumers", node);
+            LOG.info("node :{} , no consumers", node);
             return;
         }
         // 平均多少个
@@ -97,12 +97,12 @@ public class DefaultSessionManage implements SessionManage {
                 }
             }
         });
-        log.info("node :{} , reallocate : {}", node, channelQueueIdMap);
+        LOG.info("node :{} , reallocate : {}", node, channelQueueIdMap);
     }
 
     @Override
-    public void unSubscription(String topicName, String groupName, Channel channel) {
-        Node node = new Node(topicName, groupName);
+    public void unSubscription(String topic, String group, Channel channel) {
+        Node node = new Node(topic, group);
         Map<Channel, Set<Integer>> channelQueuesMap = subscriptionNodeMap.get(node);
         if (channelQueuesMap != null) {
             Set<Integer> queueSet = channelQueuesMap.remove(channel);
@@ -114,8 +114,8 @@ public class DefaultSessionManage implements SessionManage {
     }
 
     @Override
-    public Set<Integer> getAllocate(String topicName, String groupName, Channel channel) {
-        Node node = new Node(topicName, groupName);
+    public Set<Integer> getAllocate(String topic, String group, Channel channel) {
+        Node node = new Node(topic, group);
         Map<Channel, Set<Integer>> channelQueuesMap = subscriptionNodeMap.get(node);
         if (channelQueuesMap != null) {
             return channelQueuesMap.getOrDefault(channel, Collections.EMPTY_SET);

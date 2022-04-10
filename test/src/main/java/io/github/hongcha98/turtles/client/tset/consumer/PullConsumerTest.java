@@ -7,7 +7,7 @@ import io.github.hongcha98.turtles.client.consumer.PullDefaultConsumer;
 public class PullConsumerTest {
     public static void main(String[] args) {
         TurtlesConfig turtlesConfig = new TurtlesConfig();
-        turtlesConfig.setGroupName("consumer-1");
+        turtlesConfig.setGroup("consumer-1");
         Consumer consumer = new PullDefaultConsumer(turtlesConfig);
         consumer.subscription("test-topic", message -> {
             System.out.println("message = " + message);

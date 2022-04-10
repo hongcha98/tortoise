@@ -19,8 +19,8 @@ public class UnSubscriptionProcess extends AbstractProcess {
     protected void doProcess(ChannelHandlerContext channelHandlerContext, Message message) {
         UnSubscriptionRequest unSubscriptionRequest = ProtocolUtils.decode(message, UnSubscriptionRequest.class);
         ChannelContext channelContext = getBroker().getChannelContextManage().getChannelContext(channelHandlerContext.channel());
-        if (Objects.equals(channelContext.getGroupName(), unSubscriptionRequest.getGroupName())) {
-            channelContext.getTopicNames().removeAll(unSubscriptionRequest.getTopicNames());
+        if (Objects.equals(channelContext.getGroup(), unSubscriptionRequest.getGroup())) {
+            channelContext.getTopics().removeAll(unSubscriptionRequest.getTopics());
         }
         response(channelHandlerContext, message, true);
     }

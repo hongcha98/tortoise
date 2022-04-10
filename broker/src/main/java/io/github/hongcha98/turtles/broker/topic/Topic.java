@@ -30,7 +30,6 @@ public class Topic implements LifeCycle {
      */
     private final Coding coding;
 
-
     /**
      * 队列列表
      */
@@ -68,7 +67,16 @@ public class Topic implements LifeCycle {
     }
 
     public int addMessage(int id, Message message) {
-        return queueFileMap.get(id).addMessage(message);
+        return addMessage(id, message, false);
+    }
+
+    public int addMessage(int id, Message message, boolean brush) {
+        QueueFile queueFile = queueFileMap.get(id);
+        int offset = queueFile.addMessage(message);
+        if (brush) {
+            queueFile.brush();
+        }
+        return offset;
     }
 
     public int getIdOffset(int id) {
@@ -97,4 +105,9 @@ public class Topic implements LifeCycle {
         }
     }
 
+    public void brush() {
+        for (QueueFile queueFile : queueFileMap.values()) {
+            queueFile.brush();
+        }
+    }
 }

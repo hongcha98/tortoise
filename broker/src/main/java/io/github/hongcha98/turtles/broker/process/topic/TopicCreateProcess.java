@@ -16,18 +16,18 @@ public class TopicCreateProcess extends AbstractProcess {
     @Override
     protected void doProcess(ChannelHandlerContext channelHandlerContext, Message message) {
         TopicCreateRequest topicCreateRequest = ProtocolUtils.decode(message, TopicCreateRequest.class);
-        String topicName = topicCreateRequest.getTopicName();
+        String topic = topicCreateRequest.getTopic();
         int queueNumber = topicCreateRequest.getQueueNumber();
         TopicManage topicManage = getBroker().getTopicManage();
-        if (topicManage.exists(topicName)) {
-            responseException(channelHandlerContext, message, new IllegalStateException("topic " + topicName + " exists"));
+        if (topicManage.exists(topic)) {
+            responseException(channelHandlerContext, message, new IllegalStateException("topic " + topic + " exists"));
         } else {
             boolean flag = false;
             try {
-                topicManage.addTopic(topicName, queueNumber);
+                topicManage.addTopic(topic, queueNumber);
                 flag = true;
             } catch (Exception e) {
-                log.error("topic create error", e);
+                LOG.error("topic create error", e);
             }
             response(channelHandlerContext, message, flag);
         }

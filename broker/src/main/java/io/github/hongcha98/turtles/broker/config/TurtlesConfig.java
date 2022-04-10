@@ -37,6 +37,26 @@ public class TurtlesConfig {
 
     private long messageRetentionTime = Constant.MESSAGE_RETENTION_TIME;
 
+    public long getSessionTime() {
+        return sessionTime;
+    }
+
+    public void setSessionTime(long sessionTime) {
+        this.sessionTime = sessionTime;
+    }
+
+    private long sessionTime = Constant.SESSION_TIME;
+
+    private long brushTime = Constant.BRUSH_TIME;
+
+    public long getBrushTime() {
+        return brushTime;
+    }
+
+    public void setBrushTime(long brushTime) {
+        this.brushTime = brushTime;
+    }
+
     public long getMessageRetentionTime() {
         return messageRetentionTime;
     }

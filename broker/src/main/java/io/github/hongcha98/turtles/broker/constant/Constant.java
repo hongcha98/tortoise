@@ -31,5 +31,8 @@ public class Constant {
     public static final long MESSAGE_RETENTION_TIME = TimeUnit.DAYS.toMillis(3);
     // queue文件尝试获取锁的时间
     public static final long QUEUE_FILE_TRY_LOCK_TIME = 500;
-
+    // 刷磁盘时间间隔
+    public static final long BRUSH_TIME = 5000;
+    // session task time
+    public static final long SESSION_TIME = 200;
 }

@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 public abstract class AbstractClientApi implements ClientApi {
-    protected final Logger log = LoggerFactory.getLogger(this.getClass());
+    protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
     private final AtomicBoolean start = new AtomicBoolean(false);
 
@@ -39,8 +39,8 @@ public abstract class AbstractClientApi implements ClientApi {
     }
 
     protected void checkConfig(TurtlesConfig turtlesConfig) {
-        String groupName = turtlesConfig.getGroupName();
-        if (groupName == null || groupName.trim().isEmpty()) {
+        String group = turtlesConfig.getGroup();
+        if (group == null || group.trim().isEmpty()) {
             throw new IllegalStateException("please configure group name");
         }
     }
@@ -52,7 +52,7 @@ public abstract class AbstractClientApi implements ClientApi {
     @Override
     public boolean createTopic(String topic, int queueNumber) {
         TopicCreateRequest topicCreateRequest = new TopicCreateRequest();
-        topicCreateRequest.setTopicName(topic);
+        topicCreateRequest.setTopic(topic);
         topicCreateRequest.setQueueNumber(queueNumber);
         return core.createTopic(topicCreateRequest);
     }

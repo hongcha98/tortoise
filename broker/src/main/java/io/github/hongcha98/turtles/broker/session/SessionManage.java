@@ -9,31 +9,31 @@ public interface SessionManage {
     /**
      * 订阅
      *
-     * @param topicName
-     * @param groupName
+     * @param topic
+     * @param group
      * @param channel
      */
-    void subscription(String topicName, String groupName, Channel channel);
+    void subscription(String topic, String group, Channel channel);
 
     /**
      * 取消订阅
      *
-     * @param topicName
-     * @param groupName
+     * @param topic
+     * @param group
      * @param channel
      */
-    void unSubscription(String topicName, String groupName, Channel channel);
+    void unSubscription(String topic, String group, Channel channel);
 
 
     /**
      * 获取分配信息
      *
-     * @param topicName
-     * @param groupName
+     * @param topic
+     * @param group
      * @param channel
      * @return
      */
-    Set<Integer> getAllocate(String topicName, String groupName, Channel channel);
+    Set<Integer> getAllocate(String topic, String group, Channel channel);
 
 
 }

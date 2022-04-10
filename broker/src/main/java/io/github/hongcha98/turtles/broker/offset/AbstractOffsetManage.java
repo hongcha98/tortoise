@@ -44,6 +44,14 @@ public abstract class AbstractOffsetManage implements OffsetManage {
     }
 
     @Override
+    public void deleteTopicOffset(String topic) {
+        Map<String, TopicOffsetInfo> groupOffsetMap = topicGroupOffsetMap.remove(topic);
+        if (groupOffsetMap != null) {
+            enduranceTopic(topic);
+        }
+    }
+
+    @Override
     public Map<Integer, Integer> getOffset(String topic, String group) {
         checkTopic(topic);
         TopicOffsetInfo topicOffsetInfo = topicGroupOffsetMap.computeIfAbsent(topic, t -> new ConcurrentHashMap<>()).get(group);
@@ -77,7 +85,7 @@ public abstract class AbstractOffsetManage implements OffsetManage {
 
     protected TopicOffsetInfo initTopicGroupOffset(String topic, String group) {
         TopicOffsetInfo topicOffsetInfo = new TopicOffsetInfo();
-        topicOffsetInfo.setGroupName(group);
+        topicOffsetInfo.setGroup(group);
         Topic topic1 = topicManage.getTopic(topic);
         topic1.getQueuesId().forEach(id -> {
             topicOffsetInfo.getQueueIdOffsetMap().put(id, topic1.getIdOffset(id));

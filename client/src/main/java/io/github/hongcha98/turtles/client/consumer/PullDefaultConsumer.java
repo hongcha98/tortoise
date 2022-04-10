@@ -47,41 +47,48 @@ public class PullDefaultConsumer extends AbstractClientApi implements Consumer {
         try {
             for (; ; ) {
                 MessageGetRequest messageGetRequest = new MessageGetRequest();
-                messageGetRequest.setTopicName(topic);
+                messageGetRequest.setTopic(topic);
                 messageGetRequest.setNumber(getTurtlesConfig().getPullMessageNumber());
                 MessageGetResponse messageGetResponse = getCore().pullMessage(messageGetRequest);
                 Map<Integer, List<MessageInfo>> queueIdMessageMap = messageGetResponse.getQueueIdMessageMap();
                 if (queueIdMessageMap.isEmpty()) {
-                    log.debug("topic : {} , group :{} ,no news has been pulled waiting for the next pull", topic, getTurtlesConfig().getGroupName());
+                    LOG.debug("topic : {} , group :{} ,no news has been pulled waiting for the next pull", topic, getTurtlesConfig().getGroup());
                     break;
                 }
                 queueIdMessageMap.forEach((queueId, messageInfos) -> {
-                    for (MessageInfo messageInfo : messageInfos) {
-                        Message message = messageInfo.getMessage();
-                        boolean ack = true;
-                        try {
-                            if (!messageListener.listener(message)) {
-                                ack = false;
+                    int offset = -1;
+                    try {
+                        for (MessageInfo messageInfo : messageInfos) {
+                            Message message = messageInfo.getMessage();
+                            try {
+                                if (messageListener.listener(message)) {
+                                    offset = messageInfo.getNextOffset();
+                                } else {
+                                    offset = messageInfo.getOffset();
+                                    break;
+                                }
+                            } catch (Exception e) {
+                                LOG.error("", e);
+                                LOG.error("topic : {} , group :{} ,msg id : {} consumer error", topic, getTurtlesConfig().getGroup(), message.getId());
+                                offset = messageInfo.getOffset();
                                 break;
                             }
-                        } catch (Exception e) {
-                            ack = false;
-                            log.error("", e);
-                            log.error("topic : {} , group :{} ,msg id : {} consumer error", topic, getTurtlesConfig().getGroupName(), message.getId());
-                            break;
-                        } finally {
+                        }
+                    } finally {
+                        if (offset != -1) {
                             OffsetCommitRequest offsetCommitRequest = new OffsetCommitRequest();
-                            offsetCommitRequest.setTopicName(topic);
+                            offsetCommitRequest.setTopic(topic);
                             offsetCommitRequest.setQueueId(queueId);
-                            offsetCommitRequest.setOffset(ack ? messageInfo.getNextOffset() : messageInfo.getOffset());
+                            offsetCommitRequest.setOffset(offset);
                             getCore().commitOffset(offsetCommitRequest);
                         }
                     }
+
                 });
             }
         } catch (Exception e) {
-            log.error("", e);
-            log.error("topic : {} , group :{} ,pull message error", topic, getTurtlesConfig().getGroupName());
+            LOG.error("", e);
+            LOG.debug("topic : {} , group :{} ,pull message error", topic, getTurtlesConfig().getGroup());
         }
     }
 
@@ -104,8 +111,8 @@ public class PullDefaultConsumer extends AbstractClientApi implements Consumer {
 
     protected void doSubscription() {
         SubscriptionRequest subscriptionRequest = new SubscriptionRequest();
-        subscriptionRequest.setGroupName(getTurtlesConfig().getGroupName());
-        subscriptionRequest.setTopicNames(new HashSet<>(messageListenerMap.keySet()));
+        subscriptionRequest.setGroup(getTurtlesConfig().getGroup());
+        subscriptionRequest.setTopics(new HashSet<>(messageListenerMap.keySet()));
         if (!getCore().subscription(subscriptionRequest)) {
             throw new TurtlesException("subscription error");
         }

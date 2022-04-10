@@ -15,8 +15,8 @@ public class OffsetCommitProcess extends AbstractProcess {
     @Override
     protected void doProcess(ChannelHandlerContext channelHandlerContext, Message message) {
         OffsetCommitRequest offsetCommitRequest = ProtocolUtils.decode(message, OffsetCommitRequest.class);
-        String groupName = getBroker().getChannelContextManage().getChannelContext(channelHandlerContext.channel()).getGroupName();
-        getBroker().getOffsetManage().commitOffset(offsetCommitRequest.getTopicName(), groupName, offsetCommitRequest.getQueueId(), offsetCommitRequest.getOffset());
+        String group = getBroker().getChannelContextManage().getChannelContext(channelHandlerContext.channel()).getGroup();
+        getBroker().getOffsetManage().commitOffset(offsetCommitRequest.getTopic(), group, offsetCommitRequest.getQueueId(), offsetCommitRequest.getOffset());
         response(channelHandlerContext, message, true);
     }
 }

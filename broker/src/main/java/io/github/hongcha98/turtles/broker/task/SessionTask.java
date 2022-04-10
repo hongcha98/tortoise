@@ -22,22 +22,22 @@ public class SessionTask extends AbstractTask {
             Map<Channel, ChannelContext> allChannelContext = channelContextManage.getAllChannelContext();
             allChannelContext.forEach((channel, channelContext) -> {
                 boolean active = channel.isActive();
-                String groupName = channelContext.getGroupName();
+                String group = channelContext.getGroup();
                 if (!active) {
                     channelContextManage.deleteChannelContext(channel);
                 }
-                boolean subscription = active && groupName != null;
-                Set<String> topicNames = channelContext.getTopicNames();
-                for (String topicName : topicNames) {
+                boolean subscription = active && group != null;
+                Set<String> topics = channelContext.getTopics();
+                for (String topic : topics) {
                     if (subscription) {
-                        sessionManage.subscription(topicName, groupName, channel);
+                        sessionManage.subscription(topic, group, channel);
                     } else {
-                        sessionManage.unSubscription(topicName, groupName, channel);
+                        sessionManage.unSubscription(topic, group, channel);
                     }
                 }
             });
         } catch (Exception e) {
-            log.error("session task error", e);
+            LOG.error("session task error", e);
         }
 
     }

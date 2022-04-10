@@ -16,11 +16,11 @@ public class ChannelContext {
     /**
      * group
      */
-    private String groupName;
+    private String group;
     /**
      * 订阅topic列表
      */
-    private Set<String> topicNames = new HashSet<>();
+    private Set<String> topics = new HashSet<>();
 
     /**
      * channel
@@ -41,23 +41,27 @@ public class ChannelContext {
         this.loginFlag = loginFlag;
     }
 
-    public String getGroupName() {
-        return groupName;
+    public String getGroup() {
+        return group;
     }
 
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
+    public void setGroup(String group) {
+        this.group = group;
     }
 
-    public Set<String> getTopicNames() {
-        return topicNames;
+    public Set<String> getTopics() {
+        return topics;
     }
 
-    public void setTopicNames(Set<String> topicNames) {
-        this.topicNames = topicNames;
+    public void setTopics(Set<String> topics) {
+        this.topics = topics;
     }
 
     public Channel getChannel() {
         return channel;
+    }
+
+    public void setChannel(Channel channel) {
+        this.channel = channel;
     }
 }

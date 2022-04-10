@@ -4,19 +4,37 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MessageAddRequest {
-    private String topicName;
+    /**
+     * topic名称
+     */
+    private String topic;
+    /**
+     * header
+     */
     private Map<String, String> header = new HashMap<>();
     /**
      * 消息数据
      */
     private byte[] body;
+    /**
+     * 是否刷盘
+     */
+    private boolean brush;
 
-    public String getTopicName() {
-        return topicName;
+    public boolean isBrush() {
+        return brush;
     }
 
-    public void setTopicName(String topicName) {
-        this.topicName = topicName;
+    public void setBrush(boolean brush) {
+        this.brush = brush;
+    }
+
+    public String getTopic() {
+        return topic;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
     }
 
     public Map<String, String> getHeader() {

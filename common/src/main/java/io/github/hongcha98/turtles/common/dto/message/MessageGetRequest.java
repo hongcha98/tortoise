@@ -2,21 +2,21 @@ package io.github.hongcha98.turtles.common.dto.message;
 
 public class MessageGetRequest {
     /**
-     * 主题名称
+     * 主题
      */
-    private String topicName;
+    private String topic;
 
     /**
      * 单个queue拉取的数量
      */
     private int number;
 
-    public String getTopicName() {
-        return topicName;
+    public String getTopic() {
+        return topic;
     }
 
-    public void setTopicName(String topicName) {
-        this.topicName = topicName;
+    public void setTopic(String topic) {
+        this.topic = topic;
     }
 
     public int getNumber() {

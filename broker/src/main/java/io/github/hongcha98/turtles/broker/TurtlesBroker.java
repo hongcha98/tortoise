@@ -17,6 +17,7 @@ import io.github.hongcha98.turtles.broker.process.topic.*;
 import io.github.hongcha98.turtles.broker.session.DefaultSessionManage;
 import io.github.hongcha98.turtles.broker.session.SessionManage;
 import io.github.hongcha98.turtles.broker.task.SessionTask;
+import io.github.hongcha98.turtles.broker.task.TopicBrushTask;
 import io.github.hongcha98.turtles.broker.topic.DefaultTopicManage;
 import io.github.hongcha98.turtles.broker.topic.TopicManage;
 import io.github.hongcha98.turtles.common.error.TurtlesException;
@@ -32,7 +33,7 @@ import static io.github.hongcha98.turtles.common.dto.constant.ProcessConstant.*;
 
 
 public class TurtlesBroker implements LifeCycle {
-    private static final Logger log = LoggerFactory.getLogger(TurtlesBroker.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TurtlesBroker.class);
 
     private final TurtlesConfig turtlesConfig;
 
@@ -78,7 +79,7 @@ public class TurtlesBroker implements LifeCycle {
             try {
                 remoteServer.close();
             } catch (Exception e) {
-                log.error("remote close error", e);
+                LOG.error("remote close error", e);
             }
             topicManage.close();
             offsetManage.close();
@@ -172,7 +173,8 @@ public class TurtlesBroker implements LifeCycle {
     }
 
     protected void doStart() {
-        taskExecutorService.scheduleAtFixedRate(new SessionTask(this), 200, 200, TimeUnit.MILLISECONDS);
+        taskExecutorService.scheduleAtFixedRate(new SessionTask(this), turtlesConfig.getSessionTime(), turtlesConfig.getSessionTime(), TimeUnit.MILLISECONDS);
+        taskExecutorService.scheduleAtFixedRate(new TopicBrushTask(this), turtlesConfig.getBrushTime(), turtlesConfig.getBrushTime(), TimeUnit.MILLISECONDS);
     }
 
     public TurtlesConfig getTurtlesConfig() {

@@ -83,8 +83,8 @@ public class DefaultCore implements Core {
     }
 
     @Override
-    public boolean deleteTopic(String topicName) {
-        return send(topicName, ProcessConstant.PROCESS_TOPIC_DELETE, Boolean.class);
+    public boolean deleteTopic(String topic) {
+        return send(topic, ProcessConstant.PROCESS_TOPIC_DELETE, Boolean.class);
     }
 
 

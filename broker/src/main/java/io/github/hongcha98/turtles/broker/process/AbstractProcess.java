@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractProcess implements Process {
-    public final Logger log = LoggerFactory.getLogger(this.getClass());
+    public final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
     private final TurtlesBroker turtlesBroker;
 
@@ -27,7 +27,7 @@ public abstract class AbstractProcess implements Process {
             try {
                 doProcess(channelHandlerContext, message);
             } catch (Exception e) {
-                log.error("process error", e);
+                LOG.error("process error", e);
                 responseException(channelHandlerContext, message, e);
             }
         } else {

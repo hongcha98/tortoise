@@ -21,7 +21,7 @@ public class DefaultProducer extends AbstractClientApi implements Producer {
     @Override
     public String send(String topic, Map<String, String> header, Object msg) {
         MessageAddRequest req = new MessageAddRequest();
-        req.setTopicName(topic);
+        req.setTopic(topic);
         req.setHeader(header);
         req.setBody(getProtocol().encode(msg));
         return getCore().send(req);

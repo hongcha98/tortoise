@@ -1,15 +1,15 @@
 package io.github.hongcha98.turtles.common.dto.offset;
 
 public class OffsetGetRequest {
-    private String topicName;
+    private String topic;
     private int queueId;
 
-    public String getTopicName() {
-        return topicName;
+    public String getTopic() {
+        return topic;
     }
 
-    public void setTopicName(String topicName) {
-        this.topicName = topicName;
+    public void setTopic(String topic) {
+        this.topic = topic;
     }
 
     public int getQueueId() {

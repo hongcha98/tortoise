@@ -11,27 +11,27 @@ public interface TopicManage extends LifeCycle {
     /**
      * 是否含有topic
      *
-     * @param topicName
+     * @param topic
      * @return
      */
-    boolean exists(String topicName);
+    boolean exists(String topic);
 
     /**
      * getTopic
      */
-    Topic getTopic(String topicName);
+    Topic getTopic(String topic);
 
     /**
      * 添加topic
      */
-    void addTopic(String topicName, int queueNumber);
+    void addTopic(String topic, int queueNumber);
 
     /**
      * 删除topic
      *
-     * @param topicName
+     * @param topic
      */
-    void deleteTopic(String topicName);
+    void deleteTopic(String topic);
 
     /**
      * 获取所有topic

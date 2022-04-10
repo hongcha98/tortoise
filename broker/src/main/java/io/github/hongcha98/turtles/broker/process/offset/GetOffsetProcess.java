@@ -17,8 +17,8 @@ public class GetOffsetProcess extends AbstractProcess {
     protected void doProcess(ChannelHandlerContext channelHandlerContext, Message message) {
         OffsetGetRequest offsetGetRequest = ProtocolUtils.decode(message, OffsetGetRequest.class);
         OffsetManage offsetManage = getBroker().getOffsetManage();
-        String groupName = getBroker().getChannelContextManage().getChannelContext(channelHandlerContext.channel()).getGroupName();
-        int offset = offsetManage.getOffset(offsetGetRequest.getTopicName(), groupName, offsetGetRequest.getQueueId());
+        String group = getBroker().getChannelContextManage().getChannelContext(channelHandlerContext.channel()).getGroup();
+        int offset = offsetManage.getOffset(offsetGetRequest.getTopic(), group, offsetGetRequest.getQueueId());
         response(channelHandlerContext, message, offset);
     }
 }

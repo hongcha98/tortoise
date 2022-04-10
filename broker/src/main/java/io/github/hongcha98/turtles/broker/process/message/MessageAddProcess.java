@@ -28,7 +28,7 @@ public class MessageAddProcess extends AbstractProcess {
         MessageAddRequest messageAddRequest = ProtocolUtils.decode(message, MessageAddRequest.class);
         Topic topic;
         try {
-            topic = getBroker().getTopicManage().getTopic(messageAddRequest.getTopicName());
+            topic = getBroker().getTopicManage().getTopic(messageAddRequest.getTopic());
         } catch (TopicException e) {
             responseException(channelHandlerContext, message, e);
             return;
@@ -46,7 +46,7 @@ public class MessageAddProcess extends AbstractProcess {
         }
         Integer queueId = queueIds.get(position % queueIds.size());
         int offset = topic.addMessage(queueId, add);
-        log.info("message topic : {} , id :{} , queueId :{} add success , offset : {}", topic.getName(), add.getId(), queueId, offset);
+        LOG.info("message topic : {} , id :{} , queueId :{} add success , offset : {}", topic.getName(), add.getId(), queueId, offset);
         response(channelHandlerContext, message, add.getId());
     }
 }

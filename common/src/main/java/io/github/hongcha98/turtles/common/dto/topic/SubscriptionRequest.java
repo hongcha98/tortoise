@@ -3,23 +3,23 @@ package io.github.hongcha98.turtles.common.dto.topic;
 import java.util.Set;
 
 public class SubscriptionRequest {
-    private String groupName;
+    private String group;
 
-    private Set<String> topicNames;
+    private Set<String> topics;
 
-    public String getGroupName() {
-        return groupName;
+    public String getGroup() {
+        return group;
     }
 
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
+    public void setGroup(String group) {
+        this.group = group;
     }
 
-    public Set<String> getTopicNames() {
-        return topicNames;
+    public Set<String> getTopics() {
+        return topics;
     }
 
-    public void setTopicNames(Set<String> topicNames) {
-        this.topicNames = topicNames;
+    public void setTopics(Set<String> topics) {
+        this.topics = topics;
     }
 }

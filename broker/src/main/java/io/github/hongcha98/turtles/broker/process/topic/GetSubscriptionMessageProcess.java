@@ -21,12 +21,12 @@ public class GetSubscriptionMessageProcess extends AbstractProcess {
     protected void doProcess(ChannelHandlerContext channelHandlerContext, Message message) {
         Channel channel = channelHandlerContext.channel();
         ChannelContext channelContext = getBroker().getChannelContextManage().getChannelContext(channel);
-        String groupName = channelContext.getGroupName();
+        String group = channelContext.getGroup();
         SubscriptionInfoResponse resp = new SubscriptionInfoResponse();
         Map<String, Set<Integer>> topicQueuesIdMap = new HashMap<>();
-        channelContext.getTopicNames().stream().forEach(topicName -> {
-            Set<Integer> allocate = getBroker().getSessionManage().getAllocate(topicName, groupName, channel);
-            topicQueuesIdMap.put(topicName, allocate);
+        channelContext.getTopics().stream().forEach(topic -> {
+            Set<Integer> allocate = getBroker().getSessionManage().getAllocate(topic, group, channel);
+            topicQueuesIdMap.put(topic, allocate);
         });
         resp.setTopicQueuesIdMap(topicQueuesIdMap);
         response(channelHandlerContext, message, resp);

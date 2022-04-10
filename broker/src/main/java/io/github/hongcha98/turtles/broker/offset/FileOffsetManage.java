@@ -14,7 +14,7 @@ import java.io.RandomAccessFile;
 import java.util.Map;
 
 public class FileOffsetManage extends AbstractOffsetManage {
-    private static final Logger log = LoggerFactory.getLogger(FileOffsetManage.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FileOffsetManage.class);
 
     private File file;
 
@@ -32,7 +32,7 @@ public class FileOffsetManage extends AbstractOffsetManage {
         try {
             randomAccessFile.close();
         } catch (IOException e) {
-            log.error("file close error", e);
+            LOG.error("file close error", e);
         }
     }
 
@@ -65,7 +65,7 @@ public class FileOffsetManage extends AbstractOffsetManage {
                 randomAccessFile.setLength(encode.length);
                 randomAccessFile.write(encode);
             } catch (IOException e) {
-                log.info("write error", e);
+                LOG.info("write error", e);
             }
         }
     }

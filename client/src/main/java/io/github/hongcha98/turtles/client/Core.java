@@ -48,10 +48,10 @@ public interface Core extends LifeCycle {
     /**
      * 删除主题
      *
-     * @param topicName
+     * @param topic
      * @return 是否成功
      */
-    boolean deleteTopic(String topicName);
+    boolean deleteTopic(String topic);
 
     /**
      * 返回消息id

@@ -10,14 +10,14 @@ public class TurtlesConfig {
 
     private String password = "turtles";
 
-    private String groupName;
+    private String group;
 
     private int sendThreadNum = 32;
 
     // 没有消息时下一次拉取消息的间隔
     private int pullMessageInterval = 300;
     // 拉取信息的数量
-    private int pullMessageNumber = 50;
+    private int pullMessageNumber = 20;
 
     public int getPullMessageNumber() {
         return pullMessageNumber;
@@ -59,12 +59,12 @@ public class TurtlesConfig {
         this.password = password;
     }
 
-    public String getGroupName() {
-        return groupName;
+    public String getGroup() {
+        return group;
     }
 
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
+    public void setGroup(String group) {
+        this.group = group;
     }
 
     public String getBrokerHost() {

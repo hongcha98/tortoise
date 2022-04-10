@@ -12,4 +12,6 @@ public interface OffsetManage extends LifeCycle {
 
     void commitOffset(String topic, String group, int id, int offset);
 
+    void deleteTopicOffset(String topic);
+
 }

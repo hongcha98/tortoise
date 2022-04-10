@@ -17,8 +17,8 @@ public class SubscriptionProcess extends AbstractProcess {
     public void doProcess(ChannelHandlerContext channelHandlerContext, Message message) {
         SubscriptionRequest subscriptionRequest = ProtocolUtils.decode(message, SubscriptionRequest.class);
         ChannelContext channelContext = getBroker().getChannelContextManage().getChannelContext(channelHandlerContext.channel());
-        channelContext.setGroupName(subscriptionRequest.getGroupName());
-        channelContext.setTopicNames(subscriptionRequest.getTopicNames());
+        channelContext.setGroup(subscriptionRequest.getGroup());
+        channelContext.setTopics(subscriptionRequest.getTopics());
         response(channelHandlerContext, message, true);
     }
 }

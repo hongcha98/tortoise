@@ -42,35 +42,35 @@ public class DefaultTopicManage implements TopicManage {
 
 
     @Override
-    public boolean exists(String topicName) {
-        return topicMap.containsKey(topicName);
+    public boolean exists(String topic) {
+        return topicMap.containsKey(topic);
     }
 
     @Override
-    public Topic getTopic(String topicName) {
-        Topic topic = topicMap.get(topicName);
+    public Topic getTopic(String topic) {
+        Topic tpc = topicMap.get(topic);
         if (topic == null) {
-            throw new TopicNotExistsException(topicName);
+            throw new TopicNotExistsException(topic);
         }
-        return topic;
+        return tpc;
     }
 
     @Override
-    public void addTopic(String topicName, int queueNumber) {
-        if (topicMap.containsKey(topicName)) {
-            throw new TurtlesException("topic : " + topicName + " already exists");
+    public void addTopic(String topic, int queueNumber) {
+        if (topicMap.containsKey(topic)) {
+            throw new TurtlesException("topic : " + topic + " already exists");
         }
-        Topic topic = new Topic(turtlesConfig.getStoragePath(), topicName, queueNumber, turtlesConfig.getCoding());
-        topic.start();
-        topicMap.put(topicName, topic);
+        Topic tpc = new Topic(turtlesConfig.getStoragePath(), topic, queueNumber, turtlesConfig.getCoding());
+        tpc.start();
+        topicMap.put(topic, tpc);
     }
 
     @Override
-    public void deleteTopic(String topicName) {
-        Topic topic = topicMap.remove(topicName);
+    public void deleteTopic(String topic) {
+        Topic tpc = topicMap.remove(topic);
         if (topic != null) {
-            topic.close();
-            File file = new File(turtlesConfig.getStoragePath(), topicName);
+            tpc.close();
+            File file = new File(turtlesConfig.getStoragePath(), topic);
             FileUtils.deleteDirectory(file);
         }
     }
