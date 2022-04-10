@@ -1,9 +1,9 @@
 package io.github.hongcha98.turtles.broker.topic;
 
 import io.github.hongcha98.turtles.broker.config.TurtlesConfig;
+import io.github.hongcha98.turtles.broker.utils.FileUtils;
 import io.github.hongcha98.turtles.common.error.TopicNotExistsException;
 import io.github.hongcha98.turtles.common.error.TurtlesException;
-import io.github.hongcha98.turtles.broker.utils.FileUtils;
 
 import java.io.File;
 import java.util.Collections;

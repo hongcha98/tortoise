@@ -16,6 +16,16 @@ public class TurtlesConfig {
 
     // 没有消息时下一次拉取消息的间隔
     private int pullMessageInterval = 300;
+    // 拉取信息的数量
+    private int pullMessageNumber = 50;
+
+    public int getPullMessageNumber() {
+        return pullMessageNumber;
+    }
+
+    public void setPullMessageNumber(int pullMessageNumber) {
+        this.pullMessageNumber = pullMessageNumber;
+    }
 
     public int getPullMessageInterval() {
         return pullMessageInterval;

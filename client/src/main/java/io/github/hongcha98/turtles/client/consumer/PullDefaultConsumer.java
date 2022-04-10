@@ -11,8 +11,8 @@ import io.github.hongcha98.turtles.common.dto.offset.OffsetCommitRequest;
 import io.github.hongcha98.turtles.common.dto.topic.SubscriptionRequest;
 import io.github.hongcha98.turtles.common.error.TurtlesException;
 
-import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,10 +34,6 @@ public class PullDefaultConsumer extends AbstractClientApi implements Consumer {
 
     }
 
-    public Map<String, MessageListener> getMessageListenerMap() {
-        return Collections.unmodifiableMap(messageListenerMap);
-    }
-
     @Override
     protected void doStart() {
         getCore().setRunnable(() -> doSubscription());
@@ -52,29 +48,33 @@ public class PullDefaultConsumer extends AbstractClientApi implements Consumer {
             for (; ; ) {
                 MessageGetRequest messageGetRequest = new MessageGetRequest();
                 messageGetRequest.setTopicName(topic);
+                messageGetRequest.setNumber(getTurtlesConfig().getPullMessageNumber());
                 MessageGetResponse messageGetResponse = getCore().pullMessage(messageGetRequest);
-                Map<Integer, MessageInfo> queueIdMessageMap = messageGetResponse.getQueueIdMessageMap();
+                Map<Integer, List<MessageInfo>> queueIdMessageMap = messageGetResponse.getQueueIdMessageMap();
                 if (queueIdMessageMap.isEmpty()) {
                     log.debug("topic : {} , group :{} ,no news has been pulled waiting for the next pull", topic, getTurtlesConfig().getGroupName());
                     break;
                 }
-                queueIdMessageMap.forEach((queueId, messageInfo) -> {
-                    Message message = messageInfo.getMessage();
-                    if (message != null) {
+                queueIdMessageMap.forEach((queueId, messageInfos) -> {
+                    for (MessageInfo messageInfo : messageInfos) {
+                        Message message = messageInfo.getMessage();
+                        boolean ack = true;
                         try {
-                            if (messageListener.listener(message)) {
-                                OffsetCommitRequest offsetCommitRequest = new OffsetCommitRequest();
-                                offsetCommitRequest.setTopicName(topic);
-                                offsetCommitRequest.setQueueId(queueId);
-                                offsetCommitRequest.setOffset(messageInfo.getNextOffset());
-                                if (!getCore().commitOffset(offsetCommitRequest)) {
-                                    log.error("topic : {} , group :{} ,msg id : {} commit error", topic, getTurtlesConfig().getGroupName(), message.getId());
-                                }
+                            if (!messageListener.listener(message)) {
+                                ack = false;
+                                break;
                             }
                         } catch (Exception e) {
+                            ack = false;
                             log.error("", e);
                             log.error("topic : {} , group :{} ,msg id : {} consumer error", topic, getTurtlesConfig().getGroupName(), message.getId());
-
+                            break;
+                        } finally {
+                            OffsetCommitRequest offsetCommitRequest = new OffsetCommitRequest();
+                            offsetCommitRequest.setTopicName(topic);
+                            offsetCommitRequest.setQueueId(queueId);
+                            offsetCommitRequest.setOffset(ack ? messageInfo.getNextOffset() : messageInfo.getOffset());
+                            getCore().commitOffset(offsetCommitRequest);
                         }
                     }
                 });
@@ -88,7 +88,11 @@ public class PullDefaultConsumer extends AbstractClientApi implements Consumer {
 
     @Override
     public void subscription(String topic, MessageListener messageListener) {
-        messageListenerMap.put(topic, messageListener);
+        if (getStart().get() == false) {
+            messageListenerMap.put(topic, messageListener);
+        } else {
+            throw new IllegalStateException("consumer already start");
+        }
     }
 
     @Override

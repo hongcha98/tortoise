@@ -43,7 +43,10 @@ public class DefaultSessionManage implements SessionManage {
         Set<Integer> queuesId = topic.getQueuesId();
         // 消费者实例个数
         int size = channelQueueIdMap.size();
-        if (size == 0) return;
+        if (size == 0) {
+            log.info("node :{} , no consumers", node);
+            return;
+        }
         // 平均多少个
         int average = queuesId.size() / size;
         if (average == 0) {

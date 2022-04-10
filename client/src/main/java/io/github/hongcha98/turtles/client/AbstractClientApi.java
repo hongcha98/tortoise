@@ -105,4 +105,7 @@ public abstract class AbstractClientApi implements ClientApi {
         return core;
     }
 
+    public AtomicBoolean getStart() {
+        return start;
+    }
 }

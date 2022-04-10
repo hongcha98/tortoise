@@ -13,6 +13,8 @@ import io.github.hongcha98.turtles.common.dto.message.MessageGetResponse;
 import io.github.hongcha98.turtles.common.dto.message.MessageInfo;
 import io.netty.channel.ChannelHandlerContext;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,23 +26,29 @@ public class MessageGetProcess extends AbstractProcess {
     @Override
     protected void doProcess(ChannelHandlerContext channelHandlerContext, Message message) {
         MessageGetRequest messageGetRequest = ProtocolUtils.decode(message, MessageGetRequest.class);
+        String topicName = messageGetRequest.getTopicName();
+        int number = messageGetRequest.getNumber();
         MessageGetResponse messageGetResponse = new MessageGetResponse();
         ChannelContext channelContext = getBroker().getChannelContextManage().getChannelContext(channelHandlerContext.channel());
         String groupName = channelContext.getGroupName();
-        String topicName = messageGetRequest.getTopicName();
         TopicManage topicManage = getBroker().getTopicManage();
         if (groupName != null && topicManage.exists(topicName)) {
             Topic topic = getBroker().getTopicManage().getTopic(topicName);
             OffsetManage offsetManage = getBroker().getOffsetManage();
             Set<Integer> queueIds = getBroker().getSessionManage().getAllocate(topicName, groupName, channelHandlerContext.channel());
             Map<Integer, Integer> queueIdOffsetMap = offsetManage.getOffset(topicName, groupName);
-            Map<Integer, MessageInfo> queueIdMessageMap = messageGetResponse.getQueueIdMessageMap();
-            for (Integer queueId : queueIds) {
-                MessageInfo messageInfo = topic.getMessage(queueId, queueIdOffsetMap.get(queueId));
-                if (messageInfo != null) {
-                    queueIdMessageMap.put(queueId, messageInfo);
+            Map<Integer, List<MessageInfo>> queueIdMessageMap = messageGetResponse.getQueueIdMessageMap();
+            queueIds.parallelStream().forEach(queueId -> {
+                // current offset
+                Integer offset = queueIdOffsetMap.get(queueId);
+                for (int i = 0; i < number; i++) {
+                    MessageInfo messageInfo = topic.getMessage(queueId, offset);
+                    if (messageInfo != null) {
+                        queueIdMessageMap.computeIfAbsent(queueId, q -> new LinkedList<>()).add(messageInfo);
+                        offset = messageInfo.getNextOffset();
+                    }
                 }
-            }
+            });
         }
         response(channelHandlerContext, message, messageGetResponse);
     }
