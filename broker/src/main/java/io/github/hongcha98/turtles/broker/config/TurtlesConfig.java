@@ -36,6 +36,8 @@ public class TurtlesConfig {
     private String password = Constant.PASSWORD;
 
     private long messageRetentionTime = Constant.MESSAGE_RETENTION_TIME;
+    private long sessionTime = Constant.SESSION_TIME;
+    private long brushTime = Constant.BRUSH_TIME;
 
     public long getSessionTime() {
         return sessionTime;
@@ -44,10 +46,6 @@ public class TurtlesConfig {
     public void setSessionTime(long sessionTime) {
         this.sessionTime = sessionTime;
     }
-
-    private long sessionTime = Constant.SESSION_TIME;
-
-    private long brushTime = Constant.BRUSH_TIME;
 
     public long getBrushTime() {
         return brushTime;

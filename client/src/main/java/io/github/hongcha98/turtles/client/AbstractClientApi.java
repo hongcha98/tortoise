@@ -14,6 +14,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 public abstract class AbstractClientApi implements ClientApi {
+    // 默认使用json编解码
+    private static final String PROTOCOL_DEFAULT_NAME = "json";
+
     protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
     private final AtomicBoolean start = new AtomicBoolean(false);
@@ -28,7 +31,7 @@ public abstract class AbstractClientApi implements ClientApi {
 
 
     public AbstractClientApi(TurtlesConfig turtlesConfig) {
-        this(turtlesConfig, SpiLoader.load(Protocol.class, 2));
+        this(turtlesConfig, SpiLoader.load(Protocol.class, PROTOCOL_DEFAULT_NAME));
         checkConfig(turtlesConfig);
 
     }

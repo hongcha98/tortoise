@@ -3,6 +3,7 @@ package io.github.hongcha98.turtles.client.tset.producer;
 import io.github.hongcha98.turtles.client.config.TurtlesConfig;
 import io.github.hongcha98.turtles.client.producer.DefaultProducer;
 import io.github.hongcha98.turtles.client.producer.Producer;
+import io.github.hongcha98.turtles.client.tset.dto.User;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -15,7 +16,7 @@ public class ProducerTest {
         turtlesConfig.setGroup("producer-test");
         Producer producer = new DefaultProducer(turtlesConfig);
         producer.start();
-        producer.send(TOPIC, "hello world");
+        asyncSend(producer, 1000000);
         producer.close();
     }
 
@@ -31,7 +32,10 @@ public class ProducerTest {
         CompletableFuture<String>[] taskArray = new CompletableFuture[number];
         long l = System.currentTimeMillis();
         for (int i = 0; i < number; i++) {
-            taskArray[i] = producer.asyncSend(TOPIC, "hello world" + i);
+            User user = new User();
+            user.setName("hello world" + i);
+            user.setAge(i);
+            taskArray[i] = producer.asyncSend(TOPIC, user);
         }
         CompletableFuture<Void> voidCompletableFuture = CompletableFuture.allOf(taskArray);
         voidCompletableFuture.get();
