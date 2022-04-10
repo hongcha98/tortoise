@@ -53,7 +53,6 @@ public class TurtlesBroker implements LifeCycle {
     private ExecutorService messageExecutorService;
     private ExecutorService offsetExecutorService;
     private ExecutorService topicExecutorService;
-
     private ScheduledExecutorService taskExecutorService;
 
     public TurtlesBroker(TurtlesConfig turtlesConfig) {
@@ -86,7 +85,8 @@ public class TurtlesBroker implements LifeCycle {
             sessionExecutorService.shutdown();
             messageExecutorService.shutdown();
             offsetExecutorService.shutdown();
-            offsetExecutorService.shutdown();
+            topicExecutorService.shutdown();
+            taskExecutorService.shutdown();
         }
     }
 
