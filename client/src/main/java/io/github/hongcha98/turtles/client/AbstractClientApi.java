@@ -86,7 +86,7 @@ public abstract class AbstractClientApi implements ClientApi {
 
     @Override
     public void close() {
-        if (start.compareAndSet(false, true)) {
+        if (start.compareAndSet(true, false)) {
             sendExecutorService.shutdown();
             core.close();
             doClose();

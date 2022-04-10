@@ -15,9 +15,7 @@ public class ProducerTest {
         turtlesConfig.setGroup("producer-test");
         Producer producer = new DefaultProducer(turtlesConfig);
         producer.start();
-        producer.deleteTopic(TOPIC);
-//        producer.createTopic(TOPIC, 8);
-//        asyncSend(producer, 100);
+        producer.send(TOPIC, "hello world");
         producer.close();
     }
 
