@@ -5,6 +5,7 @@ import io.github.hongcha98.tortoise.client.producer.DefaultProducer;
 import io.github.hongcha98.tortoise.client.producer.Producer;
 import io.github.hongcha98.tortoise.client.tset.dto.User;
 
+import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -17,7 +18,7 @@ public class ProducerTest {
         Producer producer = new DefaultProducer(tortoiseConfig);
         producer.start();
 //        producer.createTopic(TOPIC, 8);
-        asyncSend(producer, 1);
+        asyncSend(producer, 10);
         producer.close();
     }
 
@@ -36,7 +37,7 @@ public class ProducerTest {
             User user = new User();
             user.setName("hello world" + i);
             user.setAge(i);
-            taskArray[i] = producer.asyncSend(TOPIC, user);
+            taskArray[i] = producer.asyncSend(TOPIC, new HashMap<>(), user, 5);
         }
         CompletableFuture<Void> voidCompletableFuture = CompletableFuture.allOf(taskArray);
         voidCompletableFuture.get();

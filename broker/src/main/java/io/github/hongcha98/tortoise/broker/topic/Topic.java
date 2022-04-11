@@ -1,18 +1,22 @@
 package io.github.hongcha98.tortoise.broker.topic;
 
+import io.github.hongcha98.tortoise.broker.LifeCycle;
 import io.github.hongcha98.tortoise.broker.constant.Constant;
 import io.github.hongcha98.tortoise.broker.topic.queue.Coding;
 import io.github.hongcha98.tortoise.broker.topic.queue.QueueFile;
-import io.github.hongcha98.tortoise.broker.LifeCycle;
 import io.github.hongcha98.tortoise.common.dto.message.Message;
 import io.github.hongcha98.tortoise.common.dto.message.MessageInfo;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Topic implements LifeCycle {
+    AtomicInteger polling = new AtomicInteger(0);
     /**
      * 存储位置
      */
@@ -68,6 +72,20 @@ public class Topic implements LifeCycle {
 
     public MessageInfo getMessage(int id, int offset, boolean consumer) {
         return queueFileMap.get(id).getMessage(offset, consumer);
+    }
+
+    public int addMessage(Message message) {
+        return addMessage(message, false);
+    }
+
+    public int addMessage(Message message, boolean brush) {
+        int position = polling.getAndIncrement();
+        if (position == Integer.MAX_VALUE) {
+            polling.set(0);
+        }
+        List<Integer> queueIds = new ArrayList<>(getQueuesId());
+        int id = queueIds.get(position % queueIds.size());
+        return addMessage(id, message, brush);
     }
 
     public int addMessage(int id, Message message) {

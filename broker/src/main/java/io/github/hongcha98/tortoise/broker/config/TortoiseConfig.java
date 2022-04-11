@@ -3,8 +3,8 @@ package io.github.hongcha98.tortoise.broker.config;
 import io.github.hongcha98.remote.common.spi.SpiLoader;
 import io.github.hongcha98.remote.protocol.Protocol;
 import io.github.hongcha98.tortoise.broker.constant.Constant;
-import io.github.hongcha98.tortoise.broker.topic.queue.DefaultCoding;
 import io.github.hongcha98.tortoise.broker.topic.queue.Coding;
+import io.github.hongcha98.tortoise.broker.topic.queue.DefaultCoding;
 
 import java.io.File;
 
@@ -29,6 +29,8 @@ public class TortoiseConfig {
     private long sessionTaskTime = Constant.SESSION_TASK_TIME;
     // 刷盘task间隔时间
     private long brushTaskTime = Constant.BRUSH_TASK_TIME;
+    // 延时消息task间隔时间
+    private long delayMessageTaskTime = Constant.DELAY_MESSAGE_TASK_TIME;
     // 消息最大消费次数
     private int consumerLimit = Constant.CONSUMER_LIMIT;
 
@@ -110,6 +112,14 @@ public class TortoiseConfig {
 
     public void setBrushTaskTime(long brushTaskTime) {
         this.brushTaskTime = brushTaskTime;
+    }
+
+    public long getDelayMessageTaskTime() {
+        return delayMessageTaskTime;
+    }
+
+    public void setDelayMessageTaskTime(long delayMessageTaskTime) {
+        this.delayMessageTaskTime = delayMessageTaskTime;
     }
 
     public int getConsumerLimit() {

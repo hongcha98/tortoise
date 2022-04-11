@@ -37,8 +37,20 @@ public class Constant {
     public static final long QUEUE_FILE_TRY_LOCK_TIME = 500;
     // 刷磁盘时间间隔
     public static final long BRUSH_TASK_TIME = 5000;
+    // 延时消息task间隔时间
+    public static final long DELAY_MESSAGE_TASK_TIME = 200;
     // session task time
     public static final long SESSION_TASK_TIME = 200;
     // 消费次数限额
     public static final int CONSUMER_LIMIT = 16;
+    // 延时主题队列数量
+    public static final int DELAY_QUEUE_NUMBER = 16;
+    // 延时消息主题名
+    public static final String DELAY_TOPIC = "_TORTOISE_DELAY_TOPIC_";
+    //  延时消息主题header topic name
+    public static final String DELAY_HEADER_TOPIC = "_TORTOISE_DELAY_HEADER_TOPIC_";
+    // 延时消息消费组
+    public static final String DELAY_GROUP = "_TORTOISE_DELAY_GROUP_";
+
+
 }

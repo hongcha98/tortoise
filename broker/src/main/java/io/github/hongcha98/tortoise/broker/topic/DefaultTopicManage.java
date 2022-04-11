@@ -1,6 +1,7 @@
 package io.github.hongcha98.tortoise.broker.topic;
 
 import io.github.hongcha98.tortoise.broker.config.TortoiseConfig;
+import io.github.hongcha98.tortoise.broker.constant.Constant;
 import io.github.hongcha98.tortoise.broker.utils.FileUtils;
 import io.github.hongcha98.tortoise.common.error.TopicNotExistsException;
 import io.github.hongcha98.tortoise.common.error.TortoiseException;
@@ -37,6 +38,9 @@ public class DefaultTopicManage implements TopicManage {
                 }
                 addTopic(name, queueNumber);
             }
+        }
+        if (!topicMap.containsKey(Constant.DELAY_TOPIC)) {
+            addTopic(Constant.DELAY_TOPIC, Constant.DELAY_QUEUE_NUMBER);
         }
     }
 

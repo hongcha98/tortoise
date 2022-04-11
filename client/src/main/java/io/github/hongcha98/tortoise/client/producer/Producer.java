@@ -25,7 +25,12 @@ public interface Producer extends ClientApi {
      * @param msg
      * @return
      */
-    String send(String topic, Map<String, String> header, Object msg);
+    default String send(String topic, Map<String, String> header, Object msg) {
+        return send(topic, Collections.emptyMap(), msg, 0);
+    }
+
+
+    String send(String topic, Map<String, String> header, Object msg, int delayLevel);
 
     /**
      * 异步发送
@@ -37,5 +42,10 @@ public interface Producer extends ClientApi {
     /**
      * 异步发送
      */
-    CompletableFuture<String> asyncSend(String topic, Map<String, String> header, Object msg);
+    default CompletableFuture<String> asyncSend(String topic, Map<String, String> header, Object msg) {
+        return asyncSend(topic, Collections.emptyMap(), msg, 0);
+    }
+
+
+    CompletableFuture<String> asyncSend(String topic, Map<String, String> header, Object msg, int delayLevel);
 }

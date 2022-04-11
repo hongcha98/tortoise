@@ -18,6 +18,7 @@ import io.github.hongcha98.tortoise.broker.process.topic.TopicCreateProcess;
 import io.github.hongcha98.tortoise.broker.process.topic.TopicDeleteProcess;
 import io.github.hongcha98.tortoise.broker.session.DefaultSessionManage;
 import io.github.hongcha98.tortoise.broker.session.SessionManage;
+import io.github.hongcha98.tortoise.broker.task.DelayMessageTask;
 import io.github.hongcha98.tortoise.broker.task.SessionTask;
 import io.github.hongcha98.tortoise.broker.task.TopicBrushTask;
 import io.github.hongcha98.tortoise.broker.topic.DefaultTopicManage;
@@ -112,7 +113,7 @@ public class TortoiseBroker implements LifeCycle {
         messageExecutorService = Executors.newFixedThreadPool(32, new DefaultThreadFactory("messageExecutorService"));
         offsetExecutorService = Executors.newSingleThreadExecutor(new DefaultThreadFactory("offsetExecutorService"));
         topicExecutorService = Executors.newSingleThreadExecutor(new DefaultThreadFactory("topicExecutorService"));
-        taskExecutorService = new ScheduledThreadPoolExecutor(1, new DefaultThreadFactory("taskExecutorService"));
+        taskExecutorService = new ScheduledThreadPoolExecutor(3, new DefaultThreadFactory("taskExecutorService"));
     }
 
     private void initOffsetManage() {
@@ -172,6 +173,7 @@ public class TortoiseBroker implements LifeCycle {
     protected void doStart() {
         taskExecutorService.scheduleAtFixedRate(new SessionTask(this), tortoiseConfig.getSessionTaskTime(), tortoiseConfig.getSessionTaskTime(), TimeUnit.MILLISECONDS);
         taskExecutorService.scheduleAtFixedRate(new TopicBrushTask(this), tortoiseConfig.getBrushTaskTime(), tortoiseConfig.getBrushTaskTime(), TimeUnit.MILLISECONDS);
+        taskExecutorService.scheduleAtFixedRate(new DelayMessageTask(this), 0, tortoiseConfig.getDelayMessageTaskTime(), TimeUnit.MILLISECONDS);
     }
 
     public TortoiseConfig getTortoiseConfig() {

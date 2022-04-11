@@ -17,6 +17,10 @@ public class MessageAddRequest {
      */
     private byte[] body;
     /**
+     * 延时等级
+     */
+    private int delayLevel;
+    /**
      * 是否刷盘
      */
     private boolean brush;
@@ -51,5 +55,16 @@ public class MessageAddRequest {
 
     public void setBody(byte[] body) {
         this.body = body;
+    }
+
+    public int getDelayLevel() {
+        return delayLevel;
+    }
+
+    public void setDelayLevel(int delayLevel) {
+        if (delayLevel < 1 || delayLevel > 16) {
+            throw new IllegalStateException("delay level error : 1 <= level <= 16");
+        }
+        this.delayLevel = delayLevel;
     }
 }

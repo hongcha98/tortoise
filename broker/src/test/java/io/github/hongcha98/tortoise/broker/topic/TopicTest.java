@@ -16,10 +16,10 @@ public class TopicTest {
     }
 
     @Test
-    public void addMessage(){
+    public void addMessage() {
         Message message = new Message();
         for (int i = 0; i < 100; i++) {
-            System.out.println(topic.addMessage(0, message));
+            System.out.println(topic.addMessage(message));
         }
     }
 

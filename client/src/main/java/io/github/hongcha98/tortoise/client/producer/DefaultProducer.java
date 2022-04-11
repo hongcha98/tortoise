@@ -19,17 +19,18 @@ public class DefaultProducer extends AbstractClientApi implements Producer {
     }
 
     @Override
-    public String send(String topic, Map<String, String> header, Object msg) {
+    public String send(String topic, Map<String, String> header, Object msg, int delayLevel) {
         MessageAddRequest req = new MessageAddRequest();
         req.setTopic(topic);
         req.setHeader(header);
         req.setBody(getProtocol().encode(msg));
+        req.setDelayLevel(delayLevel);
         return getCore().send(req);
     }
 
     @Override
-    public CompletableFuture<String> asyncSend(String topic, Map<String, String> header, Object msg) {
-        return asyncSend(() -> send(topic, header, msg));
+    public CompletableFuture<String> asyncSend(String topic, Map<String, String> header, Object msg, int delayLevel) {
+        return asyncSend(() -> send(topic, header, msg, delayLevel));
     }
 
 }
