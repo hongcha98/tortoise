@@ -1,13 +1,10 @@
-# Turtles MQ
+# Tortoise MQ
 
-一款简易的消息中间件,因为水平有限，它不太快,所以命名为乌龟Turtles MQ
+一款简易的消息中间件,因为水平有限，它不太快,Tortoise MQ
 
 ### TODO
 
 client
-
-- 添加消息tps
-
 
 - 消费者逻辑(推和拉)
 
@@ -18,6 +15,8 @@ client
 broker
 
 - 消费次数上限(已完成)
+
+- 延时消息
 
 - topic queue文件调整
 
