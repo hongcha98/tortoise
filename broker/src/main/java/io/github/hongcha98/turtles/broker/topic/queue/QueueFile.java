@@ -14,6 +14,7 @@ import java.io.RandomAccessFile;
 import java.lang.reflect.Method;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -74,18 +75,28 @@ public class QueueFile implements LifeCycle {
         mappedByteBuffer.position(offset);
     }
 
-
     /**
-     * 获取offset后面的message,如果offset处没有则返回null
+     * 单纯获取 不是消费
      *
-     * @param offset
+     * @param offset 偏移量
      * @return
      */
     public MessageInfo getMessage(int offset) {
+        return getMessage(offset, false);
+    }
+
+    /**
+     * 获取offset的message,如果offset处没有则返回null
+     *
+     * @param offset   偏移量
+     * @param consumer 是否消费
+     * @return
+     */
+    public MessageInfo getMessage(int offset, boolean consumer) {
         boolean isLock = false;
         try {
             isLock = readLock.tryLock(Constant.QUEUE_FILE_TRY_LOCK_TIME, TimeUnit.MILLISECONDS);
-            return coding.decode(mappedByteBuffer, offset);
+            return coding.decode(mappedByteBuffer, offset, consumer);
         } catch (InterruptedException e) {
             throw new TurtlesException(e);
         } finally {
@@ -104,6 +115,8 @@ public class QueueFile implements LifeCycle {
         boolean isLock = false;
         try {
             isLock = writeLock.tryLock(Constant.QUEUE_FILE_TRY_LOCK_TIME, TimeUnit.MILLISECONDS);
+            message.setId(UUID.randomUUID().toString());
+            message.setCreateTime(System.currentTimeMillis());
             int offset = mappedByteBuffer.position();
             if ((double) offset / (double) mappedByteBuffer.capacity() >= Constant.QUEUE_FILE_SIZE_EXPANSION_PERCENTAGE) {
                 mappedByteBuffer.force();

@@ -16,8 +16,7 @@ public class ProducerTest {
         turtlesConfig.setGroup("producer-test");
         Producer producer = new DefaultProducer(turtlesConfig);
         producer.start();
-//        producer.createTopic(TOPIC,1);
-        asyncSend(producer, 10000);
+        asyncSend(producer, 1);
         producer.close();
     }
 

@@ -21,8 +21,12 @@ public class Constant {
     public static final int FILE_LENGTH_INDEX = 0;
     // 文件长度记录占的字节大小
     public static final int FILE_LENGTH = 4;
-    // 信息长度记录占的字节大小
+    // 消息长度记录占的字节大小
     public static final int MESSAGE_LENGTH = 4;
+    // 消息消费次数占的字节大小
+    public static final int CONSUMER_NUMBER_LENGTH = 1;
+    // 消息元数据占用字节大小
+    public static final int MESSAGE_METADATA_LENGTH = MESSAGE_LENGTH + CONSUMER_NUMBER_LENGTH;
     // 账号
     public static final String USERNAME = NAME;
     // 密码
@@ -32,7 +36,9 @@ public class Constant {
     // queue文件尝试获取锁的时间
     public static final long QUEUE_FILE_TRY_LOCK_TIME = 500;
     // 刷磁盘时间间隔
-    public static final long BRUSH_TIME = 5000;
+    public static final long BRUSH_TASK_TIME = 5000;
     // session task time
-    public static final long SESSION_TIME = 200;
+    public static final long SESSION_TASK_TIME = 200;
+    // 消费次数限额
+    public static final int CONSUMER_LIMIT = 16;
 }

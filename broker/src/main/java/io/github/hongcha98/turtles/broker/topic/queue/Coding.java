@@ -21,7 +21,9 @@ public interface Coding {
      * 解码,并获取下一条消息的offset,如果offset没有则返回null
      *
      * @param byteBuffer
+     * @param offset
+     * @param consumer
      * @return
      */
-    MessageInfo decode(ByteBuffer byteBuffer, int offset);
+    MessageInfo decode(ByteBuffer byteBuffer, int offset, boolean consumer);
 }

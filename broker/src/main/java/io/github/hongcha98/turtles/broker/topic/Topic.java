@@ -63,7 +63,11 @@ public class Topic implements LifeCycle {
     }
 
     public MessageInfo getMessage(int id, int offset) {
-        return queueFileMap.get(id).getMessage(offset);
+        return getMessage(id, offset, false);
+    }
+
+    public MessageInfo getMessage(int id, int offset, boolean consumer) {
+        return queueFileMap.get(id).getMessage(offset, consumer);
     }
 
     public int addMessage(int id, Message message) {

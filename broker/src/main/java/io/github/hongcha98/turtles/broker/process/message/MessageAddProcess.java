@@ -11,7 +11,6 @@ import io.netty.channel.ChannelHandlerContext;
 
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -34,7 +33,6 @@ public class MessageAddProcess extends AbstractProcess {
             return;
         }
         io.github.hongcha98.turtles.common.dto.message.Message add = new io.github.hongcha98.turtles.common.dto.message.Message();
-        add.setId(UUID.randomUUID().toString());
         add.setHeader(messageAddRequest.getHeader());
         add.setBody(messageAddRequest.getBody());
         ArrayList<Integer> queueIds = new ArrayList<>(topic.getQueuesId());
@@ -44,7 +42,7 @@ public class MessageAddProcess extends AbstractProcess {
             positionAtomic.set(0);
         }
         Integer queueId = queueIds.get(position % queueIds.size());
-        int offset = topic.addMessage(queueId, add);
+        int offset = topic.addMessage(queueId, add, messageAddRequest.isBrush());
         LOG.info("message topic : {} , id :{} , queueId :{} add success , offset : {}", topic.getName(), add.getId(), queueId, offset);
         response(channelHandlerContext, message, add.getId());
     }

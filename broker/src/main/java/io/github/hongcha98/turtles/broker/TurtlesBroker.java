@@ -8,13 +8,14 @@ import io.github.hongcha98.turtles.broker.context.ChannelContextManage;
 import io.github.hongcha98.turtles.broker.context.DefaultChannelContextManage;
 import io.github.hongcha98.turtles.broker.offset.FileOffsetManage;
 import io.github.hongcha98.turtles.broker.offset.OffsetManage;
-import io.github.hongcha98.turtles.broker.process.session.LoginProcess;
 import io.github.hongcha98.turtles.broker.process.message.MessageAddProcess;
 import io.github.hongcha98.turtles.broker.process.message.MessageGetProcess;
 import io.github.hongcha98.turtles.broker.process.offset.OffsetCommitProcess;
+import io.github.hongcha98.turtles.broker.process.session.LoginProcess;
 import io.github.hongcha98.turtles.broker.process.session.SubscriptionProcess;
 import io.github.hongcha98.turtles.broker.process.session.UnSubscriptionProcess;
-import io.github.hongcha98.turtles.broker.process.topic.*;
+import io.github.hongcha98.turtles.broker.process.topic.TopicCreateProcess;
+import io.github.hongcha98.turtles.broker.process.topic.TopicDeleteProcess;
 import io.github.hongcha98.turtles.broker.session.DefaultSessionManage;
 import io.github.hongcha98.turtles.broker.session.SessionManage;
 import io.github.hongcha98.turtles.broker.task.SessionTask;
@@ -169,8 +170,8 @@ public class TurtlesBroker implements LifeCycle {
     }
 
     protected void doStart() {
-        taskExecutorService.scheduleAtFixedRate(new SessionTask(this), turtlesConfig.getSessionTime(), turtlesConfig.getSessionTime(), TimeUnit.MILLISECONDS);
-        taskExecutorService.scheduleAtFixedRate(new TopicBrushTask(this), turtlesConfig.getBrushTime(), turtlesConfig.getBrushTime(), TimeUnit.MILLISECONDS);
+        taskExecutorService.scheduleAtFixedRate(new SessionTask(this), turtlesConfig.getSessionTaskTime(), turtlesConfig.getSessionTaskTime(), TimeUnit.MILLISECONDS);
+        taskExecutorService.scheduleAtFixedRate(new TopicBrushTask(this), turtlesConfig.getBrushTaskTime(), turtlesConfig.getBrushTaskTime(), TimeUnit.MILLISECONDS);
     }
 
     public TurtlesConfig getTurtlesConfig() {

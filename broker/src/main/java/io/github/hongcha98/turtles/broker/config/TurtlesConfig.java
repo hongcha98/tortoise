@@ -1,5 +1,7 @@
 package io.github.hongcha98.turtles.broker.config;
 
+import io.github.hongcha98.remote.common.spi.SpiLoader;
+import io.github.hongcha98.remote.protocol.Protocol;
 import io.github.hongcha98.turtles.broker.constant.Constant;
 import io.github.hongcha98.turtles.broker.topic.queue.Coding;
 import io.github.hongcha98.turtles.broker.topic.queue.DefaultCoding;
@@ -7,61 +9,28 @@ import io.github.hongcha98.turtles.broker.topic.queue.DefaultCoding;
 import java.io.File;
 
 public class TurtlesConfig {
-    /**
-     * broker id
-     */
+    // broker id
     private int id = 0;
-    /**
-     * 端口
-     */
+    // 端口
     private int port = 9999;
-    /**
-     * 默认queue数量
-     */
+    // 默认queue数量
     private int queueNumber = 8;
-    /**
-     * 存储位置
-     */
+    // 存储位置
     private String storagePath = System.getProperty("user.home") + File.separator + Constant.NAME;
-
-    /**
-     * queue编解码
-     *
-     * @return
-     */
-    private Coding coding = new DefaultCoding();
-
+    // message 编解码
+    private Coding coding = new DefaultCoding(SpiLoader.load(Protocol.class, Constant.PROTOCOL_CODE));
+    // 账号
     private String username = Constant.USERNAME;
-
+    // 密码
     private String password = Constant.PASSWORD;
-
+    // 消息保留时间
     private long messageRetentionTime = Constant.MESSAGE_RETENTION_TIME;
-    private long sessionTime = Constant.SESSION_TIME;
-    private long brushTime = Constant.BRUSH_TIME;
-
-    public long getSessionTime() {
-        return sessionTime;
-    }
-
-    public void setSessionTime(long sessionTime) {
-        this.sessionTime = sessionTime;
-    }
-
-    public long getBrushTime() {
-        return brushTime;
-    }
-
-    public void setBrushTime(long brushTime) {
-        this.brushTime = brushTime;
-    }
-
-    public long getMessageRetentionTime() {
-        return messageRetentionTime;
-    }
-
-    public void setMessageRetentionTime(long messageRetentionTime) {
-        this.messageRetentionTime = messageRetentionTime;
-    }
+    // session task间隔时间
+    private long sessionTaskTime = Constant.SESSION_TASK_TIME;
+    // 刷盘task间隔时间
+    private long brushTaskTime = Constant.BRUSH_TASK_TIME;
+    // 消息最大消费次数
+    private int consumerLimit = Constant.CONSUMER_LIMIT;
 
     public int getId() {
         return id;
@@ -117,5 +86,37 @@ public class TurtlesConfig {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public long getMessageRetentionTime() {
+        return messageRetentionTime;
+    }
+
+    public void setMessageRetentionTime(long messageRetentionTime) {
+        this.messageRetentionTime = messageRetentionTime;
+    }
+
+    public long getSessionTaskTime() {
+        return sessionTaskTime;
+    }
+
+    public void setSessionTaskTime(long sessionTaskTime) {
+        this.sessionTaskTime = sessionTaskTime;
+    }
+
+    public long getBrushTaskTime() {
+        return brushTaskTime;
+    }
+
+    public void setBrushTaskTime(long brushTaskTime) {
+        this.brushTaskTime = brushTaskTime;
+    }
+
+    public int getConsumerLimit() {
+        return consumerLimit;
+    }
+
+    public void setConsumerLimit(int consumerLimit) {
+        this.consumerLimit = consumerLimit;
     }
 }

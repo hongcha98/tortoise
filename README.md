@@ -13,10 +13,11 @@ client
 
     - 批量拉取消息(已完成)
 
-
 - 消息tag(可选)
 
 broker
+
+- 消费次数上限(已完成)
 
 - topic queue文件调整
 
