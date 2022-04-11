@@ -8,11 +8,12 @@ import io.github.hongcha98.turtles.broker.context.ChannelContextManage;
 import io.github.hongcha98.turtles.broker.context.DefaultChannelContextManage;
 import io.github.hongcha98.turtles.broker.offset.FileOffsetManage;
 import io.github.hongcha98.turtles.broker.offset.OffsetManage;
-import io.github.hongcha98.turtles.broker.process.LoginProcess;
+import io.github.hongcha98.turtles.broker.process.session.LoginProcess;
 import io.github.hongcha98.turtles.broker.process.message.MessageAddProcess;
 import io.github.hongcha98.turtles.broker.process.message.MessageGetProcess;
-import io.github.hongcha98.turtles.broker.process.offset.GetOffsetProcess;
 import io.github.hongcha98.turtles.broker.process.offset.OffsetCommitProcess;
+import io.github.hongcha98.turtles.broker.process.session.SubscriptionProcess;
+import io.github.hongcha98.turtles.broker.process.session.UnSubscriptionProcess;
 import io.github.hongcha98.turtles.broker.process.topic.*;
 import io.github.hongcha98.turtles.broker.session.DefaultSessionManage;
 import io.github.hongcha98.turtles.broker.session.SessionManage;
@@ -147,26 +148,21 @@ public class TurtlesBroker implements LifeCycle {
         remoteServer.registerProcess(PROCESS_LOGIN, new LoginProcess(this), sessionExecutorService);
         remoteServer.registerProcess(PROCESS_SUBSCRIPTION, new SubscriptionProcess(this), sessionExecutorService);
         remoteServer.registerProcess(PROCESS_UNSUBSCRIPTION, new UnSubscriptionProcess(this), sessionExecutorService);
-        remoteServer.registerProcess(PROCESS_SUBSCRIPTION_INFO, new GetSubscriptionMessageProcess(this), sessionExecutorService);
 
         /**
          * message相关
          */
-
         remoteServer.registerProcess(PROCESS_MESSAGE_SESSION_PULL, new MessageGetProcess(this), messageExecutorService);
         remoteServer.registerProcess(PROCESS_MESSAGE_ADD, new MessageAddProcess(this), messageExecutorService);
 
         /**
          * offset 相关
          */
-
-        remoteServer.registerProcess(PROCESS_OFFSET_GET, new GetOffsetProcess(this), offsetExecutorService);
         remoteServer.registerProcess(PROCESS_OFFSET_COMMIT, new OffsetCommitProcess(this), offsetExecutorService);
 
         /**
          * topic相关
          */
-
         remoteServer.registerProcess(PROCESS_TOPIC_CREATE, new TopicCreateProcess(this), topicExecutorService);
         remoteServer.registerProcess(PROCESS_TOPIC_DELETE, new TopicDeleteProcess(this), topicExecutorService);
 

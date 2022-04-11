@@ -5,7 +5,7 @@ import io.github.hongcha98.remote.core.util.ProtocolUtils;
 import io.github.hongcha98.turtles.broker.TurtlesBroker;
 import io.github.hongcha98.turtles.broker.process.AbstractProcess;
 import io.github.hongcha98.turtles.broker.topic.Topic;
-import io.github.hongcha98.turtles.common.dto.message.MessageAddRequest;
+import io.github.hongcha98.turtles.common.dto.message.request.MessageAddRequest;
 import io.github.hongcha98.turtles.common.error.TopicException;
 import io.netty.channel.ChannelHandlerContext;
 
@@ -42,7 +42,6 @@ public class MessageAddProcess extends AbstractProcess {
         int position = positionAtomic.getAndIncrement();
         if (position == Integer.MAX_VALUE) {
             positionAtomic.set(0);
-            position = 0;
         }
         Integer queueId = queueIds.get(position % queueIds.size());
         int offset = topic.addMessage(queueId, add);

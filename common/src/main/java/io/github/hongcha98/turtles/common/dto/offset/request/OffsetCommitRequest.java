@@ -1,4 +1,4 @@
-package io.github.hongcha98.turtles.common.dto.offset;
+package io.github.hongcha98.turtles.common.dto.offset.request;
 
 public class OffsetCommitRequest {
     private String topic;

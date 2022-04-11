@@ -1,4 +1,4 @@
-package io.github.hongcha98.turtles.common.dto.login;
+package io.github.hongcha98.turtles.common.dto.session.request;
 
 public class LoginRequest {
 

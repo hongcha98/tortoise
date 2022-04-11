@@ -3,7 +3,7 @@ package io.github.hongcha98.turtles.client;
 import io.github.hongcha98.remote.common.spi.SpiLoader;
 import io.github.hongcha98.remote.protocol.Protocol;
 import io.github.hongcha98.turtles.client.config.TurtlesConfig;
-import io.github.hongcha98.turtles.common.dto.topic.TopicCreateRequest;
+import io.github.hongcha98.turtles.common.dto.topic.request.TopicCreateRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

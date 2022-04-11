@@ -4,7 +4,7 @@ import io.github.hongcha98.remote.common.Message;
 import io.github.hongcha98.remote.core.util.ProtocolUtils;
 import io.github.hongcha98.turtles.broker.TurtlesBroker;
 import io.github.hongcha98.turtles.broker.process.AbstractProcess;
-import io.github.hongcha98.turtles.common.dto.offset.OffsetCommitRequest;
+import io.github.hongcha98.turtles.common.dto.offset.request.OffsetCommitRequest;
 import io.netty.channel.ChannelHandlerContext;
 
 public class OffsetCommitProcess extends AbstractProcess {

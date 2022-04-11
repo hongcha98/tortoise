@@ -1,4 +1,4 @@
-package io.github.hongcha98.turtles.common.dto.message;
+package io.github.hongcha98.turtles.common.dto.message.request;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,4 +1,6 @@
-package io.github.hongcha98.turtles.common.dto.message;
+package io.github.hongcha98.turtles.common.dto.message.response;
+
+import io.github.hongcha98.turtles.common.dto.message.MessageInfo;
 
 import java.util.List;
 import java.util.Map;

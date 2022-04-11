@@ -8,8 +8,8 @@ import io.github.hongcha98.turtles.broker.offset.OffsetManage;
 import io.github.hongcha98.turtles.broker.process.AbstractProcess;
 import io.github.hongcha98.turtles.broker.topic.Topic;
 import io.github.hongcha98.turtles.broker.topic.TopicManage;
-import io.github.hongcha98.turtles.common.dto.message.MessageGetRequest;
-import io.github.hongcha98.turtles.common.dto.message.MessageGetResponse;
+import io.github.hongcha98.turtles.common.dto.message.request.MessageGetRequest;
+import io.github.hongcha98.turtles.common.dto.message.response.MessageGetResponse;
 import io.github.hongcha98.turtles.common.dto.message.MessageInfo;
 import io.netty.channel.ChannelHandlerContext;
 

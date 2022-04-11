@@ -6,16 +6,13 @@ import io.github.hongcha98.remote.core.RemoteClient;
 import io.github.hongcha98.remote.core.config.RemoteConfig;
 import io.github.hongcha98.turtles.client.config.TurtlesConfig;
 import io.github.hongcha98.turtles.common.dto.constant.ProcessConstant;
-import io.github.hongcha98.turtles.common.dto.login.LoginRequest;
-import io.github.hongcha98.turtles.common.dto.message.MessageAddRequest;
-import io.github.hongcha98.turtles.common.dto.message.MessageGetRequest;
-import io.github.hongcha98.turtles.common.dto.message.MessageGetResponse;
-import io.github.hongcha98.turtles.common.dto.offset.OffsetCommitRequest;
-import io.github.hongcha98.turtles.common.dto.offset.OffsetGetRequest;
-import io.github.hongcha98.turtles.common.dto.topic.SubscriptionInfoRequest;
-import io.github.hongcha98.turtles.common.dto.topic.SubscriptionInfoResponse;
-import io.github.hongcha98.turtles.common.dto.topic.SubscriptionRequest;
-import io.github.hongcha98.turtles.common.dto.topic.TopicCreateRequest;
+import io.github.hongcha98.turtles.common.dto.session.request.LoginRequest;
+import io.github.hongcha98.turtles.common.dto.message.request.MessageAddRequest;
+import io.github.hongcha98.turtles.common.dto.message.request.MessageGetRequest;
+import io.github.hongcha98.turtles.common.dto.message.response.MessageGetResponse;
+import io.github.hongcha98.turtles.common.dto.offset.request.OffsetCommitRequest;
+import io.github.hongcha98.turtles.common.dto.session.request.SubscriptionRequest;
+import io.github.hongcha98.turtles.common.dto.topic.request.TopicCreateRequest;
 import io.netty.channel.Channel;
 
 
@@ -72,10 +69,6 @@ public class DefaultCore implements Core {
         return send(subscriptionRequest, ProcessConstant.PROCESS_SUBSCRIPTION, Boolean.class);
     }
 
-    @Override
-    public SubscriptionInfoResponse getSubscriptionInfo(SubscriptionInfoRequest subscriptionInfoRequest) {
-        return send(subscriptionInfoRequest, ProcessConstant.PROCESS_SUBSCRIPTION_INFO, SubscriptionInfoResponse.class);
-    }
 
     @Override
     public boolean createTopic(TopicCreateRequest topicCreateRequest) {
@@ -93,10 +86,7 @@ public class DefaultCore implements Core {
         return send(message, ProcessConstant.PROCESS_MESSAGE_ADD, String.class);
     }
 
-    @Override
-    public int getOffset(OffsetGetRequest offsetGetRequest) {
-        return send(offsetGetRequest, ProcessConstant.PROCESS_OFFSET_GET, Integer.class);
-    }
+
 
     @Override
     public boolean commitOffset(OffsetCommitRequest offsetCommitRequest) {

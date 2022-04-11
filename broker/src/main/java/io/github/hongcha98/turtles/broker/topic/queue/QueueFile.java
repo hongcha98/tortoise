@@ -106,6 +106,8 @@ public class QueueFile implements LifeCycle {
             isLock = writeLock.tryLock(Constant.QUEUE_FILE_TRY_LOCK_TIME, TimeUnit.MILLISECONDS);
             int offset = mappedByteBuffer.position();
             if ((double) offset / (double) mappedByteBuffer.capacity() >= Constant.QUEUE_FILE_SIZE_EXPANSION_PERCENTAGE) {
+                mappedByteBuffer.force();
+                MMAP_CLEAR_METHOD.invoke(FileChannelImpl.class, mappedByteBuffer);
                 mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, 0, mappedByteBuffer.capacity() + Constant.QUEUE_FILE_ADD_SIZE);
                 mappedByteBuffer.position(offset);
             }

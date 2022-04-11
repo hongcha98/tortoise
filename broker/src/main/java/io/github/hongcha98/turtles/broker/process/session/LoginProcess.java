@@ -1,11 +1,12 @@
-package io.github.hongcha98.turtles.broker.process;
+package io.github.hongcha98.turtles.broker.process.session;
 
 import io.github.hongcha98.remote.common.Message;
 import io.github.hongcha98.remote.core.util.ProtocolUtils;
 import io.github.hongcha98.turtles.broker.TurtlesBroker;
 import io.github.hongcha98.turtles.broker.config.TurtlesConfig;
 import io.github.hongcha98.turtles.broker.context.ChannelContext;
-import io.github.hongcha98.turtles.common.dto.login.LoginRequest;
+import io.github.hongcha98.turtles.broker.process.AbstractProcess;
+import io.github.hongcha98.turtles.common.dto.session.request.LoginRequest;
 import io.netty.channel.ChannelHandlerContext;
 
 import java.util.Objects;

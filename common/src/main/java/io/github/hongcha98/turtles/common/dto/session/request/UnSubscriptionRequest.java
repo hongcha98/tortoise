@@ -1,4 +1,4 @@
-package io.github.hongcha98.turtles.common.dto.topic;
+package io.github.hongcha98.turtles.common.dto.session.request;
 
 import java.util.Set;
 

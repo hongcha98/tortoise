@@ -1,14 +1,11 @@
 package io.github.hongcha98.turtles.client;
 
-import io.github.hongcha98.turtles.common.dto.message.MessageAddRequest;
-import io.github.hongcha98.turtles.common.dto.message.MessageGetRequest;
-import io.github.hongcha98.turtles.common.dto.message.MessageGetResponse;
-import io.github.hongcha98.turtles.common.dto.offset.OffsetCommitRequest;
-import io.github.hongcha98.turtles.common.dto.offset.OffsetGetRequest;
-import io.github.hongcha98.turtles.common.dto.topic.SubscriptionInfoRequest;
-import io.github.hongcha98.turtles.common.dto.topic.SubscriptionInfoResponse;
-import io.github.hongcha98.turtles.common.dto.topic.SubscriptionRequest;
-import io.github.hongcha98.turtles.common.dto.topic.TopicCreateRequest;
+import io.github.hongcha98.turtles.common.dto.message.request.MessageAddRequest;
+import io.github.hongcha98.turtles.common.dto.message.request.MessageGetRequest;
+import io.github.hongcha98.turtles.common.dto.message.response.MessageGetResponse;
+import io.github.hongcha98.turtles.common.dto.offset.request.OffsetCommitRequest;
+import io.github.hongcha98.turtles.common.dto.session.request.SubscriptionRequest;
+import io.github.hongcha98.turtles.common.dto.topic.request.TopicCreateRequest;
 
 /**
  * 核心api,发送请求到broker,并等待响应
@@ -29,13 +26,6 @@ public interface Core extends LifeCycle {
      */
     boolean subscription(SubscriptionRequest subscriptionRequest);
 
-    /**
-     * 获取当前通道的注册信息
-     *
-     * @param subscriptionInfoRequest
-     * @return
-     */
-    SubscriptionInfoResponse getSubscriptionInfo(SubscriptionInfoRequest subscriptionInfoRequest);
 
     /**
      * 创建主题
@@ -61,10 +51,6 @@ public interface Core extends LifeCycle {
      */
     String send(MessageAddRequest messageAddRequest);
 
-    /**
-     * 获取offset
-     */
-    int getOffset(OffsetGetRequest offsetGetRequest);
 
     /**
      * 设置偏移量

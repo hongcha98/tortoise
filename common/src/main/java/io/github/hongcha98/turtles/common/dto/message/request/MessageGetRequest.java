@@ -1,4 +1,4 @@
-package io.github.hongcha98.turtles.common.dto.message;
+package io.github.hongcha98.turtles.common.dto.message.request;
 
 public class MessageGetRequest {
     /**

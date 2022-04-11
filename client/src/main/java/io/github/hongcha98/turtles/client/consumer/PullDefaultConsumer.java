@@ -4,11 +4,11 @@ import io.github.hongcha98.remote.protocol.Protocol;
 import io.github.hongcha98.turtles.client.AbstractClientApi;
 import io.github.hongcha98.turtles.client.config.TurtlesConfig;
 import io.github.hongcha98.turtles.common.dto.message.Message;
-import io.github.hongcha98.turtles.common.dto.message.MessageGetRequest;
-import io.github.hongcha98.turtles.common.dto.message.MessageGetResponse;
+import io.github.hongcha98.turtles.common.dto.message.request.MessageGetRequest;
+import io.github.hongcha98.turtles.common.dto.message.response.MessageGetResponse;
 import io.github.hongcha98.turtles.common.dto.message.MessageInfo;
-import io.github.hongcha98.turtles.common.dto.offset.OffsetCommitRequest;
-import io.github.hongcha98.turtles.common.dto.topic.SubscriptionRequest;
+import io.github.hongcha98.turtles.common.dto.offset.request.OffsetCommitRequest;
+import io.github.hongcha98.turtles.common.dto.session.request.SubscriptionRequest;
 import io.github.hongcha98.turtles.common.error.TurtlesException;
 
 import java.util.HashSet;
