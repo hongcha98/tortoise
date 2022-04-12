@@ -49,16 +49,16 @@ public class DelayMessageTask extends AbstractTask {
             Topic tpc = topicManage.getTopic(Constant.DELAY_TOPIC);
             tpc.getQueuesId().parallelStream().forEach(queueId -> {
                 int offset = offsetManage.getOffset(Constant.DELAY_TOPIC, Constant.DELAY_GROUP, queueId);
-                MessageInfo message;
-                while ((message = tpc.getMessage(queueId, offset)) != null) {
-                    offset = message.getNextOffset();
-                    Message msg = message.getMessage();
+                MessageInfo messageInfo;
+                while ((messageInfo = tpc.getMessage(queueId, offset)) != null) {
+                    offset = messageInfo.getNextOffset();
+                    Message msg = messageInfo.getMessage();
                     Map<String, String> header = msg.getHeader();
                     // 是否超时
-                    if (System.currentTimeMillis() >= msg.getCreateTime() + DELAY_LEVEL_TIME_MAP.get(queueId + 1)) {
+                    if (System.currentTimeMillis() >= messageInfo.getCreateTime() + DELAY_LEVEL_TIME_MAP.get(queueId + 1)) {
                         String topic = header.remove(Constant.DELAY_HEADER_TOPIC);
                         Topic targetTopic = topicManage.getTopic(topic);
-                        targetTopic.addMessage(msg);
+                        targetTopic.addMessage(messageInfo.getMessage());
                         offsetManage.commitOffset(Constant.DELAY_TOPIC, Constant.DELAY_GROUP, queueId, offset);
                     } else {
                         break;

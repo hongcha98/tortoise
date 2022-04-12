@@ -3,8 +3,6 @@ package io.github.hongcha98.tortoise.broker.config;
 import io.github.hongcha98.remote.common.spi.SpiLoader;
 import io.github.hongcha98.remote.protocol.Protocol;
 import io.github.hongcha98.tortoise.broker.constant.Constant;
-import io.github.hongcha98.tortoise.broker.topic.queue.Coding;
-import io.github.hongcha98.tortoise.broker.topic.queue.DefaultCoding;
 
 import java.io.File;
 
@@ -18,7 +16,7 @@ public class TortoiseConfig {
     // 存储位置
     private String storagePath = System.getProperty("user.home") + File.separator + Constant.NAME;
     // message 编解码
-    private Coding coding = new DefaultCoding(SpiLoader.load(Protocol.class, Constant.PROTOCOL_CODE));
+    private Protocol protocol = SpiLoader.load(Protocol.class, Constant.PROTOCOL_CODE);
     // 账号
     private String username = Constant.USERNAME;
     // 密码
@@ -66,12 +64,12 @@ public class TortoiseConfig {
         this.storagePath = storagePath;
     }
 
-    public Coding getCoding() {
-        return coding;
+    public Protocol getProtocol() {
+        return protocol;
     }
 
-    public void setCoding(Coding coding) {
-        this.coding = coding;
+    public void setProtocol(Protocol protocol) {
+        this.protocol = protocol;
     }
 
     public String getUsername() {

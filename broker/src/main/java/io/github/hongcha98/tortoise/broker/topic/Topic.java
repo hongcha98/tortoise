@@ -1,9 +1,8 @@
 package io.github.hongcha98.tortoise.broker.topic;
 
+import io.github.hongcha98.remote.protocol.Protocol;
 import io.github.hongcha98.tortoise.broker.LifeCycle;
 import io.github.hongcha98.tortoise.broker.constant.Constant;
-import io.github.hongcha98.tortoise.broker.topic.queue.Coding;
-import io.github.hongcha98.tortoise.broker.topic.queue.QueueFile;
 import io.github.hongcha98.tortoise.common.dto.message.Message;
 import io.github.hongcha98.tortoise.common.dto.message.MessageInfo;
 
@@ -14,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReadWriteLock;
 
 public class Topic implements LifeCycle {
     AtomicInteger polling = new AtomicInteger(0);
@@ -32,22 +32,21 @@ public class Topic implements LifeCycle {
     /**
      * 编码解码器
      */
-    private final Coding coding;
+    private final Protocol protocol;
 
     /**
      * 队列列表
      */
     Map<Integer/* id */, QueueFile> queueFileMap;
 
-
-    public Topic(String path, String name, int queueNumber, Coding coding) {
+    public Topic(String path, String name, int queueNumber, Protocol protocol) {
         if (queueNumber < 1) {
             throw new IllegalStateException("queue number < 1");
         }
         this.path = path;
         this.name = name;
         this.queueNumber = queueNumber;
-        this.coding = coding;
+        this.protocol = protocol;
         this.queueFileMap = new ConcurrentHashMap<>();
     }
 
@@ -61,7 +60,7 @@ public class Topic implements LifeCycle {
         for (int i = 0; i < queueNumber; i++) {
             String queueFileName = topicPath + File.separator + i + Constant.FILE_NAME_SUFFIX;
             File file = new File(queueFileName);
-            QueueFile queueFile = new QueueFile(file, i, coding);
+            QueueFile queueFile = new QueueFile(file, i, protocol);
             queueFileMap.put(queueFile.getId(), queueFile);
         }
     }
@@ -100,6 +99,11 @@ public class Topic implements LifeCycle {
         }
         return offset;
     }
+
+    public int removeTimeBefore(int id, long time) {
+        return queueFileMap.get(id).removeTimeBefore(time);
+    }
+
 
     public int getIdOffset(int id) {
         return queueFileMap.get(id).getPosition();

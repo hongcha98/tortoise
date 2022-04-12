@@ -64,7 +64,7 @@ public class DefaultTopicManage implements TopicManage {
         if (topicMap.containsKey(topic)) {
             throw new TortoiseException("topic : " + topic + " already exists");
         }
-        Topic tpc = new Topic(tortoiseConfig.getStoragePath(), topic, queueNumber, tortoiseConfig.getCoding());
+        Topic tpc = new Topic(tortoiseConfig.getStoragePath(), topic, queueNumber, tortoiseConfig.getProtocol());
         tpc.start();
         topicMap.put(topic, tpc);
     }

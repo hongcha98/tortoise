@@ -3,6 +3,7 @@ package io.github.hongcha98.tortoise.common.dto.message;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 消息条目
@@ -10,9 +11,6 @@ import java.util.Map;
 public class Message {
     // 消息id,由broker生成
     private String id;
-
-    // 创建时间
-    private long createTime;
 
     //消息头
     private Map<String, String> header = new HashMap<>();
@@ -29,13 +27,6 @@ public class Message {
         this.id = id;
     }
 
-    public long getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(long createTime) {
-        this.createTime = createTime;
-    }
 
     public Map<String, String> getHeader() {
         return header;
@@ -53,15 +44,28 @@ public class Message {
         this.body = body;
     }
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Message message = (Message) o;
+        return Objects.equals(id, message.id) && Objects.equals(header, message.header) && Arrays.equals(body, message.body);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(id, header);
+        result = 31 * result + Arrays.hashCode(body);
+        return result;
+    }
+
     @Override
     public String toString() {
         return "Message{" +
                 "id='" + id + '\'' +
-                ", createTime=" + createTime +
                 ", header=" + header +
                 ", body=" + Arrays.toString(body) +
                 '}';
     }
-
-
 }

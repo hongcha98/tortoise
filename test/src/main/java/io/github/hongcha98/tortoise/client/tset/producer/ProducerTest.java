@@ -17,20 +17,12 @@ public class ProducerTest {
         tortoiseConfig.setGroup("producer-test");
         Producer producer = new DefaultProducer(tortoiseConfig);
         producer.start();
-//        producer.createTopic(TOPIC, 8);
-        for (int i = 0; i < 20; i++) {
-            asyncSend(producer, 100000);
+        producer.createTopic(TOPIC, 8);
+        for (int i = 0; i < 1; i++) {
+            asyncSend(producer, 1000);
         }
 
         producer.close();
-    }
-
-    public static void send(Producer producer, int number) {
-        long l = System.currentTimeMillis();
-        for (int i = 0; i < number; i++) {
-            producer.send(TOPIC, "hello world" + i);
-        }
-        System.out.println("time cost :" + (System.currentTimeMillis() - l));
     }
 
     public static void asyncSend(Producer producer, int number) throws ExecutionException, InterruptedException {

@@ -39,9 +39,9 @@ public class DefaultSessionManage implements SessionManage {
      */
     protected void reallocate(Node node) {
         Map<Channel, Set<Integer>> channelQueueIdMap = subscriptionNodeMap.get(node);
-        Topic topic = topicManage.getTopic(node.getTopic());
-        if (topic == null)
+        if (!topicManage.exists(node.getTopic()))
             return;
+        Topic topic = topicManage.getTopic(node.getTopic());
         Set<Integer> queuesId = topic.getQueuesId();
         // 消费者实例个数
         int size = channelQueueIdMap.size();
