@@ -18,7 +18,10 @@ public class ProducerTest {
         Producer producer = new DefaultProducer(tortoiseConfig);
         producer.start();
 //        producer.createTopic(TOPIC, 8);
-        asyncSend(producer, 10);
+        for (int i = 0; i < 20; i++) {
+            asyncSend(producer, 100000);
+        }
+
         producer.close();
     }
 
@@ -37,7 +40,7 @@ public class ProducerTest {
             User user = new User();
             user.setName("hello world" + i);
             user.setAge(i);
-            taskArray[i] = producer.asyncSend(TOPIC, new HashMap<>(), user, 5);
+            taskArray[i] = producer.asyncSend(TOPIC, new HashMap<>(), user);
         }
         CompletableFuture<Void> voidCompletableFuture = CompletableFuture.allOf(taskArray);
         voidCompletableFuture.get();

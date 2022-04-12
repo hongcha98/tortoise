@@ -17,7 +17,7 @@ public class MessageAddRequest {
      */
     private byte[] body;
     /**
-     * 延时等级
+     * 延时等级  0 <= value <= 16,0为不延时
      */
     private int delayLevel;
     /**
@@ -62,8 +62,8 @@ public class MessageAddRequest {
     }
 
     public void setDelayLevel(int delayLevel) {
-        if (delayLevel < 1 || delayLevel > 16) {
-            throw new IllegalStateException("delay level error : 1 <= level <= 16");
+        if (delayLevel < 0 || delayLevel > 16) {
+            throw new IllegalStateException("delay level error : 0 <= level <= 16");
         }
         this.delayLevel = delayLevel;
     }
