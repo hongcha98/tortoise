@@ -8,7 +8,7 @@ public class Constant {
     // 名称
     public static final String NAME = "tortoise";
     // queue文件扩容大小
-    public static final int QUEUE_FILE_ADD_SIZE = 1024 * 1024 * 10;
+    public static final int QUEUE_FILE_ADD_SIZE = 1024 * 1024;
     // 达到文件的占比就扩容
     public static final double QUEUE_FILE_SIZE_EXPANSION_PERCENTAGE = 0.75;
     // 编解码
@@ -23,12 +23,18 @@ public class Constant {
     public static final int FILE_LENGTH = 4;
     // 消息长度记录占的字节大小
     public static final int MESSAGE_LENGTH = 4;
+    // 消息id占的字节大小
+    public static final int MESSAGE_ID_LENGTH = 36;
     // 消息创建时间占的字节大小
     public static final int MESSAGE_CREATE_TIME_LENGTH = 8;
     // 消息消费次数占的字节大小
     public static final int CONSUMER_NUMBER_LENGTH = 1;
-    // 消息元数据占用字节大小
-    public static final int MESSAGE_METADATA_LENGTH = MESSAGE_LENGTH + MESSAGE_CREATE_TIME_LENGTH + CONSUMER_NUMBER_LENGTH;
+    // header长度所占字节
+    public static final int MESSAGE_HEADER_LENGTH = 4;
+    // body长度所占字节
+    public static final int MESSAGE_BODY_LENGTH = 4;
+    // 消息数据占用字节大小
+    public static final int MESSAGE_METADATA_LENGTH = MESSAGE_ID_LENGTH + MESSAGE_CREATE_TIME_LENGTH + CONSUMER_NUMBER_LENGTH + MESSAGE_BODY_LENGTH + MESSAGE_BODY_LENGTH;
     // 账号
     public static final String USERNAME = NAME;
     // 密码

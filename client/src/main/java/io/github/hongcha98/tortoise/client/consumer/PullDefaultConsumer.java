@@ -3,8 +3,7 @@ package io.github.hongcha98.tortoise.client.consumer;
 import io.github.hongcha98.remote.protocol.Protocol;
 import io.github.hongcha98.tortoise.client.AbstractClientApi;
 import io.github.hongcha98.tortoise.client.config.TortoiseConfig;
-import io.github.hongcha98.tortoise.common.dto.message.Message;
-import io.github.hongcha98.tortoise.common.dto.message.MessageInfo;
+import io.github.hongcha98.tortoise.common.dto.message.MessageEntry;
 import io.github.hongcha98.tortoise.common.dto.message.request.MessageGetRequest;
 import io.github.hongcha98.tortoise.common.dto.message.response.MessageGetResponse;
 import io.github.hongcha98.tortoise.common.dto.offset.request.OffsetCommitRequest;
@@ -50,27 +49,27 @@ public class PullDefaultConsumer extends AbstractClientApi implements Consumer {
                 messageGetRequest.setTopic(topic);
                 messageGetRequest.setNumber(getTortoiseConfig().getPullMessageNumber());
                 MessageGetResponse messageGetResponse = getCore().pullMessage(messageGetRequest);
-                Map<Integer, List<MessageInfo>> queueIdMessageMap = messageGetResponse.getQueueIdMessageMap();
+                Map<Integer, List<MessageEntry>> queueIdMessageMap = messageGetResponse.getQueueIdMessageMap();
                 if (queueIdMessageMap.isEmpty()) {
                     LOG.debug("topic : {} , group :{} ,no news has been pulled waiting for the next pull", topic, getTortoiseConfig().getGroup());
                     break;
                 }
-                queueIdMessageMap.forEach((queueId, messageInfos) -> {
+                queueIdMessageMap.keySet().parallelStream().forEach(queueId -> {
+                    List<MessageEntry> messageEntries = queueIdMessageMap.get(queueId);
                     int offset = -1;
                     try {
-                        for (MessageInfo messageInfo : messageInfos) {
-                            Message message = messageInfo.getMessage();
+                        for (MessageEntry messageEntry : messageEntries) {
                             try {
-                                if (messageListener.listener(message)) {
-                                    offset = messageInfo.getNextOffset();
+                                if (messageListener.listener(messageEntry)) {
+                                    offset = messageEntry.getNextOffset();
                                 } else {
-                                    offset = messageInfo.getOffset();
+                                    offset = messageEntry.getOffset();
                                     break;
                                 }
                             } catch (Exception e) {
                                 LOG.error("", e);
-                                LOG.error("topic : {} , group :{} ,msg id : {} consumer error", topic, getTortoiseConfig().getGroup(), message.getId());
-                                offset = messageInfo.getOffset();
+                                LOG.error("topic : {} , group :{} ,msg id : {} consumer error", topic, getTortoiseConfig().getGroup(), messageEntry.getId());
+                                offset = messageEntry.getOffset();
                                 break;
                             }
                         }
@@ -83,7 +82,6 @@ public class PullDefaultConsumer extends AbstractClientApi implements Consumer {
                             getCore().commitOffset(offsetCommitRequest);
                         }
                     }
-
                 });
             }
         } catch (Exception e) {

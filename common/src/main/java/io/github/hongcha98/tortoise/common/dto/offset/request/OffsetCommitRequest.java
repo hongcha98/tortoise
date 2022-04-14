@@ -3,7 +3,9 @@ package io.github.hongcha98.tortoise.common.dto.offset.request;
 public class OffsetCommitRequest {
     private String topic;
     private int queueId;
+    private String msgId;
     private int offset;
+
 
     public String getTopic() {
         return topic;
@@ -23,6 +25,14 @@ public class OffsetCommitRequest {
 
     public int getOffset() {
         return offset;
+    }
+
+    public String getMsgId() {
+        return msgId;
+    }
+
+    public void setMsgId(String msgId) {
+        this.msgId = msgId;
     }
 
     public void setOffset(int offset) {

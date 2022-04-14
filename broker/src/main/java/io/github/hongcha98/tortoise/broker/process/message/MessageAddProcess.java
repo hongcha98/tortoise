@@ -6,6 +6,7 @@ import io.github.hongcha98.tortoise.broker.TortoiseBroker;
 import io.github.hongcha98.tortoise.broker.constant.Constant;
 import io.github.hongcha98.tortoise.broker.process.AbstractProcess;
 import io.github.hongcha98.tortoise.broker.topic.Topic;
+import io.github.hongcha98.tortoise.common.dto.message.MessageEntry;
 import io.github.hongcha98.tortoise.common.dto.message.request.MessageAddRequest;
 import io.github.hongcha98.tortoise.common.error.TopicException;
 import io.netty.channel.ChannelHandlerContext;
@@ -25,20 +26,20 @@ public class MessageAddProcess extends AbstractProcess {
             responseException(channelHandlerContext, message, e);
             return;
         }
-        io.github.hongcha98.tortoise.common.dto.message.Message add = new io.github.hongcha98.tortoise.common.dto.message.Message();
-        add.setHeader(messageAddRequest.getHeader());
-        add.setBody(messageAddRequest.getBody());
+        MessageEntry messageEntry = new MessageEntry();
+        messageEntry.setHeader(messageAddRequest.getHeader());
+        messageEntry.setBody(messageAddRequest.getBody());
         // 如果是延时消息
         int offset;
         int delayLevel = messageAddRequest.getDelayLevel();
         if (delayLevel != 0) {
             topic = getBroker().getTopicManage().getTopic(Constant.DELAY_TOPIC);
-            add.getHeader().put(Constant.DELAY_HEADER_TOPIC, messageAddRequest.getTopic());
-            offset = topic.addMessage(delayLevel - 1, add, messageAddRequest.isBrush());
+            messageEntry.getHeader().put(Constant.DELAY_HEADER_TOPIC, messageAddRequest.getTopic());
+            offset = topic.addMessage(delayLevel - 1, messageEntry, messageAddRequest.isBrush());
         } else {
-            offset = topic.addMessage(add, messageAddRequest.isBrush());
+            offset = topic.addMessage(messageEntry, messageAddRequest.isBrush());
         }
-        LOG.info("message topic : {} , id :{} ,  add success , offset : {}", topic.getName(), add.getId(), offset);
-        response(channelHandlerContext, message, add.getId());
+        LOG.info("message topic : {} , id :{} ,  add success , offset : {}", topic.getName(), messageEntry.getId(), offset);
+        response(channelHandlerContext, message, messageEntry.getId());
     }
 }

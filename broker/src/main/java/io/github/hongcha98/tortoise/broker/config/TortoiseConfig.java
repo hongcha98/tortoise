@@ -15,8 +15,6 @@ public class TortoiseConfig {
     private int queueNumber = 8;
     // 存储位置
     private String storagePath = System.getProperty("user.home") + File.separator + Constant.NAME;
-    // message 编解码
-    private Protocol protocol = SpiLoader.load(Protocol.class, Constant.PROTOCOL_CODE);
     // 账号
     private String username = Constant.USERNAME;
     // 密码
@@ -31,6 +29,16 @@ public class TortoiseConfig {
     private long delayMessageTaskTime = Constant.DELAY_MESSAGE_TASK_TIME;
     // 消息最大消费次数
     private int consumerLimit = Constant.CONSUMER_LIMIT;
+    // 消息保存时间
+    private int messageSave = 3;
+
+    public int getMessageSave() {
+        return messageSave;
+    }
+
+    public void setMessageSave(int messageSave) {
+        this.messageSave = messageSave;
+    }
 
     public int getId() {
         return id;
@@ -62,14 +70,6 @@ public class TortoiseConfig {
 
     public void setStoragePath(String storagePath) {
         this.storagePath = storagePath;
-    }
-
-    public Protocol getProtocol() {
-        return protocol;
-    }
-
-    public void setProtocol(Protocol protocol) {
-        this.protocol = protocol;
     }
 
     public String getUsername() {

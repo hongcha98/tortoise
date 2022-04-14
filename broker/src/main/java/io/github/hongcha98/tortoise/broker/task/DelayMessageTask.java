@@ -5,8 +5,7 @@ import io.github.hongcha98.tortoise.broker.constant.Constant;
 import io.github.hongcha98.tortoise.broker.offset.OffsetManage;
 import io.github.hongcha98.tortoise.broker.topic.Topic;
 import io.github.hongcha98.tortoise.broker.topic.TopicManage;
-import io.github.hongcha98.tortoise.common.dto.message.Message;
-import io.github.hongcha98.tortoise.common.dto.message.MessageInfo;
+import io.github.hongcha98.tortoise.common.dto.message.MessageEntry;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,16 +48,15 @@ public class DelayMessageTask extends AbstractTask {
             Topic tpc = topicManage.getTopic(Constant.DELAY_TOPIC);
             tpc.getQueuesId().parallelStream().forEach(queueId -> {
                 int offset = offsetManage.getOffset(Constant.DELAY_TOPIC, Constant.DELAY_GROUP, queueId);
-                MessageInfo messageInfo;
-                while ((messageInfo = tpc.getMessage(queueId, offset)) != null) {
-                    offset = messageInfo.getNextOffset();
-                    Message msg = messageInfo.getMessage();
-                    Map<String, String> header = msg.getHeader();
+                MessageEntry messageEntry;
+                while ((messageEntry = tpc.getMessage(queueId, offset)) != null) {
+                    offset = messageEntry.getNextOffset();
+                    Map<String, String> header = messageEntry.getHeader();
                     // 是否超时
-                    if (System.currentTimeMillis() >= messageInfo.getCreateTime() + DELAY_LEVEL_TIME_MAP.get(queueId + 1)) {
+                    if (System.currentTimeMillis() >= messageEntry.getCreateTime() + DELAY_LEVEL_TIME_MAP.get(queueId + 1)) {
                         String topic = header.remove(Constant.DELAY_HEADER_TOPIC);
                         Topic targetTopic = topicManage.getTopic(topic);
-                        targetTopic.addMessage(messageInfo.getMessage());
+                        targetTopic.addMessage(messageEntry);
                         offsetManage.commitOffset(Constant.DELAY_TOPIC, Constant.DELAY_GROUP, queueId, offset);
                     } else {
                         break;

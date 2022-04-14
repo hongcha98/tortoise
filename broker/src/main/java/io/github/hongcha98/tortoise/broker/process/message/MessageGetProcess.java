@@ -8,7 +8,7 @@ import io.github.hongcha98.tortoise.broker.process.AbstractProcess;
 import io.github.hongcha98.tortoise.broker.topic.Topic;
 import io.github.hongcha98.tortoise.broker.topic.TopicManage;
 import io.github.hongcha98.tortoise.broker.TortoiseBroker;
-import io.github.hongcha98.tortoise.common.dto.message.MessageInfo;
+import io.github.hongcha98.tortoise.common.dto.message.MessageEntry;
 import io.github.hongcha98.tortoise.common.dto.message.request.MessageGetRequest;
 import io.github.hongcha98.tortoise.common.dto.message.response.MessageGetResponse;
 import io.netty.channel.ChannelHandlerContext;
@@ -37,22 +37,22 @@ public class MessageGetProcess extends AbstractProcess {
             OffsetManage offsetManage = getBroker().getOffsetManage();
             Set<Integer> queueIds = getBroker().getSessionManage().getAllocate(topic, group, channelHandlerContext.channel());
             Map<Integer, Integer> queueIdOffsetMap = offsetManage.getOffset(topic, group);
-            Map<Integer, List<MessageInfo>> queueIdMessageMap = messageGetResponse.getQueueIdMessageMap();
+            Map<Integer, List<MessageEntry>> queueIdMessageMap = messageGetResponse.getQueueIdMessageMap();
             queueIds.parallelStream().forEach(queueId -> {
                 // current offset
                 Integer offset = queueIdOffsetMap.get(queueId);
                 for (int i = 0; i < number; ) {
-                    MessageInfo messageInfo = tpc.getMessage(queueId, offset, i == 0);
-                    if (messageInfo != null) {
-                        offset = messageInfo.getNextOffset();
+                    MessageEntry msg = tpc.getMessage(queueId, offset, i == 0);
+                    if (msg != null) {
+                        offset = msg.getNextOffset();
                         // 首条数据如果超出消费次数,就跳过
                         if (i == 0) {
-                            if (messageInfo.getConsumptionTimes() > getBroker().getTortoiseConfig().getConsumerLimit()) {
+                            if (msg.getConsumptionTimes() > getBroker().getTortoiseConfig().getConsumerLimit()) {
                                 offsetManage.commitOffset(topic, group, queueId, offset);
                                 continue;
                             }
                         }
-                        queueIdMessageMap.computeIfAbsent(queueId, q -> new LinkedList<>()).add(messageInfo);
+                        queueIdMessageMap.computeIfAbsent(queueId, q -> new LinkedList<>()).add(msg);
                         i++;
                     } else {
                         break;

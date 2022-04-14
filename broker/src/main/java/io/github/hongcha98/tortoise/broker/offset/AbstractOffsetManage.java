@@ -4,6 +4,7 @@ import io.github.hongcha98.tortoise.broker.topic.Topic;
 import io.github.hongcha98.tortoise.broker.topic.TopicManage;
 import io.github.hongcha98.tortoise.common.error.TopicNotExistsException;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
@@ -44,6 +45,24 @@ public abstract class AbstractOffsetManage implements OffsetManage {
     }
 
     @Override
+    public Map<Integer, Integer> getMinOffset(String topic) {
+        Map<Integer, Integer> offsetMinMap = new HashMap<>();
+        Map<String, TopicOffsetInfo> groupOffsetMap = topicGroupOffsetMap.get(topic);
+        if (groupOffsetMap != null) {
+            for (TopicOffsetInfo topicOffsetInfo : groupOffsetMap.values()) {
+                Map<Integer, Integer> queueIdOffsetMap = topicOffsetInfo.getQueueIdOffsetMap();
+                queueIdOffsetMap.forEach((queueId, offset) -> {
+                    Integer min = offsetMinMap.get(queueId);
+                    if (min == null || offset < min) {
+                        offsetMinMap.put(queueId, offset);
+                    }
+                });
+            }
+        }
+        return offsetMinMap;
+    }
+
+    @Override
     public void deleteTopicOffset(String topic) {
         Map<String, TopicOffsetInfo> groupOffsetMap = topicGroupOffsetMap.remove(topic);
         if (groupOffsetMap != null) {
@@ -67,6 +86,20 @@ public abstract class AbstractOffsetManage implements OffsetManage {
     }
 
     @Override
+    public void offsetForward(String topic, int id, int forward) {
+        Map<String, TopicOffsetInfo> groupOffsetMap = topicGroupOffsetMap.get(topic);
+        if (groupOffsetMap != null) {
+            for (TopicOffsetInfo topicOffsetInfo : groupOffsetMap.values()) {
+                Map<Integer, Integer> queueIdOffsetMap = topicOffsetInfo.getQueueIdOffsetMap();
+                Integer oldOffset = queueIdOffsetMap.get(id);
+                if (oldOffset != null) {
+                    queueIdOffsetMap.put(id, oldOffset - forward);
+                }
+            }
+        }
+    }
+
+    @Override
     public void commitOffset(String topic, String group, int id, int offset) {
         Map<Integer, Integer> offsetMap = getOffset(topic, group);
         offsetMap.put(id, offset);
@@ -86,9 +119,9 @@ public abstract class AbstractOffsetManage implements OffsetManage {
     protected TopicOffsetInfo initTopicGroupOffset(String topic, String group) {
         TopicOffsetInfo topicOffsetInfo = new TopicOffsetInfo();
         topicOffsetInfo.setGroup(group);
-        Topic topic1 = topicManage.getTopic(topic);
-        topic1.getQueuesId().forEach(id -> {
-            topicOffsetInfo.getQueueIdOffsetMap().put(id, topic1.getIdOffset(id));
+        Topic tpc = topicManage.getTopic(topic);
+        tpc.getQueuesId().forEach(id -> {
+            topicOffsetInfo.getQueueIdOffsetMap().put(id, tpc.getIdOffset(id));
         });
         topicGroupOffsetMap.get(topic).put(group, topicOffsetInfo);
         enduranceTopic(topic);

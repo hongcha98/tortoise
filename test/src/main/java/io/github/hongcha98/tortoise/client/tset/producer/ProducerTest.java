@@ -17,11 +17,8 @@ public class ProducerTest {
         tortoiseConfig.setGroup("producer-test");
         Producer producer = new DefaultProducer(tortoiseConfig);
         producer.start();
-        producer.createTopic(TOPIC, 8);
-        for (int i = 0; i < 1; i++) {
-            asyncSend(producer, 1000);
-        }
-
+//        producer.createTopic("test-topic",8);
+        asyncSend(producer, 100000);
         producer.close();
     }
 

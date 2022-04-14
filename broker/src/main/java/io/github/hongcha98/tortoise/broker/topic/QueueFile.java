@@ -1,10 +1,9 @@
 package io.github.hongcha98.tortoise.broker.topic;
 
-import io.github.hongcha98.remote.protocol.Protocol;
+import com.alibaba.fastjson.JSON;
 import io.github.hongcha98.tortoise.broker.LifeCycle;
 import io.github.hongcha98.tortoise.broker.constant.Constant;
-import io.github.hongcha98.tortoise.common.dto.message.Message;
-import io.github.hongcha98.tortoise.common.dto.message.MessageInfo;
+import io.github.hongcha98.tortoise.common.dto.message.MessageEntry;
 import io.github.hongcha98.tortoise.common.error.TortoiseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,8 +12,11 @@ import sun.nio.ch.FileChannelImpl;
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -42,13 +44,12 @@ public class QueueFile implements LifeCycle {
 
     private MappedByteBuffer mappedByteBuffer;
 
-    private Protocol protocol;
 
     private ReentrantReadWriteLock.ReadLock readLock;
 
     private ReentrantReadWriteLock.WriteLock writeLock;
 
-    public QueueFile(File file, Integer id, Protocol protocol) {
+    public QueueFile(File file, Integer id) {
         try {
             this.id = id;
             long fileLength = Constant.QUEUE_FILE_ADD_SIZE;
@@ -58,7 +59,6 @@ public class QueueFile implements LifeCycle {
             this.randomAccessFile = new RandomAccessFile(file, "rw");
             this.fileChannel = randomAccessFile.getChannel();
             this.mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, 0, fileLength);
-            this.protocol = protocol;
             ReentrantReadWriteLock reentrantReadWriteLock = new ReentrantReadWriteLock();
             this.readLock = reentrantReadWriteLock.readLock();
             this.writeLock = reentrantReadWriteLock.writeLock();
@@ -82,7 +82,7 @@ public class QueueFile implements LifeCycle {
      * @param offset 偏移量
      * @return
      */
-    public MessageInfo getMessage(int offset) {
+    public MessageEntry getMessage(int offset) {
         return getMessage(offset, false);
     }
 
@@ -93,35 +93,72 @@ public class QueueFile implements LifeCycle {
      * @param consumer 是否消费
      * @return
      */
-    public MessageInfo getMessage(int offset, boolean consumer) {
+    public MessageEntry getMessage(int offset, boolean consumer) {
         boolean isLock = false;
         try {
             isLock = readLock.tryLock(Constant.QUEUE_FILE_TRY_LOCK_TIME, TimeUnit.MILLISECONDS);
-            //获取旧的position，后面设置回去
-            int oldPosition = mappedByteBuffer.position();
-            try {
-                mappedByteBuffer.position(offset);
-                // 读取消息长度
-                int length = mappedByteBuffer.getInt(offset);
-                if (length == 0) return null;
-                // 创建时间
-                long createTime = mappedByteBuffer.getLong(offset + Constant.MESSAGE_LENGTH);
-                // 读取消费次数
-                int consumptionTimesOffset = offset + Constant.MESSAGE_LENGTH + Constant.MESSAGE_CREATE_TIME_LENGTH;
-                byte consumptionTimes = mappedByteBuffer.get(consumptionTimesOffset);
-                if (consumer) {
-                    consumptionTimes += 1;
-                    mappedByteBuffer.put(consumptionTimesOffset, consumptionTimes);
-                }
-                mappedByteBuffer.position(offset + Constant.MESSAGE_METADATA_LENGTH);
-                byte[] bytes = new byte[length];
-                mappedByteBuffer.get(bytes);
-                Message message = protocol.decode(bytes, Message.class);
-                int nextOffset = offset + Constant.MESSAGE_METADATA_LENGTH + length;
-                return new MessageInfo(message, createTime, consumptionTimes, offset, nextOffset);
-            } finally {
-                mappedByteBuffer.position(oldPosition);
+            ByteBuffer buffer = mappedByteBuffer.duplicate();
+            // 读取消息长度
+            int length = buffer.getInt(offset);
+            if (length == 0) return null;
+            int currentPosition = offset;
+            buffer.position(currentPosition += Constant.MESSAGE_LENGTH);
+            byte[] idBytes = new byte[36];
+            buffer.get(idBytes);
+            // id
+            String id = new String(idBytes, StandardCharsets.UTF_8);
+            // 创建时间
+            long createTime = buffer.getLong(currentPosition += Constant.MESSAGE_ID_LENGTH);
+            // 读取消费次数
+            byte consumptionTimes = buffer.get(currentPosition += Constant.MESSAGE_CREATE_TIME_LENGTH);
+            if (consumer) {
+                consumptionTimes += 1;
+                buffer.put(currentPosition, consumptionTimes);
             }
+            // 读取header
+            int headerLength = buffer.getInt(currentPosition += Constant.CONSUMER_NUMBER_LENGTH);
+            buffer.position(currentPosition += Constant.MESSAGE_HEADER_LENGTH);
+            byte[] headers = new byte[headerLength];
+            buffer.get(headers);
+            Map<String, String> header = JSON.parseObject(headers, Map.class);
+            // 读取body
+            int bodyLength = buffer.getInt(currentPosition += headerLength);
+            buffer.position(currentPosition += Constant.MESSAGE_BODY_LENGTH);
+            byte[] body = new byte[bodyLength];
+            buffer.get(body);
+            currentPosition += bodyLength;
+            int nextOffset = currentPosition;
+            MessageEntry messageEntry = new MessageEntry();
+            messageEntry.setId(id);
+            messageEntry.setCreateTime(createTime);
+            messageEntry.setConsumptionTimes(consumptionTimes);
+            messageEntry.setHeader(header);
+            messageEntry.setBody(body);
+            messageEntry.setOffset(offset);
+            messageEntry.setNextOffset(nextOffset);
+            return messageEntry;
+        } catch (Exception e) {
+            throw new TortoiseException(e);
+        } finally {
+            if (isLock) {
+                readLock.unlock();
+            }
+        }
+    }
+
+    public String getMsgId(int offset) {
+        boolean isLock = false;
+        try {
+            isLock = readLock.tryLock(Constant.QUEUE_FILE_TRY_LOCK_TIME, TimeUnit.MILLISECONDS);
+            ByteBuffer readBuffer = mappedByteBuffer.asReadOnlyBuffer();
+            // 读取消息长度
+            int length = readBuffer.getInt(offset);
+            if (length == 0) return null;
+            readBuffer.position(offset += Constant.MESSAGE_LENGTH);
+            byte[] idBytes = new byte[36];
+            readBuffer.get(idBytes);
+            return new String(idBytes, StandardCharsets.UTF_8);
+
         } catch (InterruptedException e) {
             throw new TortoiseException(e);
         } finally {
@@ -131,16 +168,45 @@ public class QueueFile implements LifeCycle {
         }
     }
 
+
+    public int getMsgIdOffset(String msgId, int begin, int max) {
+        boolean isLock = false;
+        try {
+            isLock = readLock.tryLock(Constant.QUEUE_FILE_TRY_LOCK_TIME, TimeUnit.MILLISECONDS);
+            ByteBuffer readBuffer = mappedByteBuffer.asReadOnlyBuffer();
+            int offset = begin;
+            for (int i = 0; i < max; i++) {
+                // 读取消息长度
+                int length = readBuffer.getInt(offset);
+                if (length == 0) return -1;
+                readBuffer.position(offset + Constant.MESSAGE_LENGTH);
+                byte[] idBytes = new byte[36];
+                readBuffer.get(idBytes);
+                String id = new String(idBytes, StandardCharsets.UTF_8);
+                if (id.equals(msgId))
+                    return offset;
+            }
+            return -1;
+        } catch (InterruptedException e) {
+            throw new TortoiseException(e);
+        } finally {
+            if (isLock) {
+                readLock.unlock();
+            }
+        }
+    }
+
+
     /**
      * 添加数据到末尾,返回这条消息的offset
      *
-     * @param message
+     * @param messageEntry
      */
-    public int addMessage(Message message) {
+    public int addMessage(MessageEntry messageEntry) {
+        ByteBuffer buffer = encodeMessage(messageEntry);
         boolean isLock = false;
         try {
             isLock = writeLock.tryLock(Constant.QUEUE_FILE_TRY_LOCK_TIME, TimeUnit.MILLISECONDS);
-            message.setId(UUID.randomUUID().toString());
             int offset = mappedByteBuffer.position();
             if ((double) offset / (double) mappedByteBuffer.capacity() >= Constant.QUEUE_FILE_SIZE_EXPANSION_PERCENTAGE) {
                 mappedByteBuffer.force();
@@ -148,12 +214,10 @@ public class QueueFile implements LifeCycle {
                 mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, 0, mappedByteBuffer.capacity() + Constant.QUEUE_FILE_ADD_SIZE);
                 mappedByteBuffer.position(offset);
             }
-            byte[] encode = protocol.encode(message);
-            mappedByteBuffer.putInt(encode.length);
-            mappedByteBuffer.putLong(System.currentTimeMillis());
-            mappedByteBuffer.put((byte) 0);
-            mappedByteBuffer.put(encode);
+            mappedByteBuffer.put(buffer);
             mappedByteBuffer.putInt(Constant.FILE_LENGTH_INDEX, mappedByteBuffer.position());
+            messageEntry.setOffset(offset);
+            messageEntry.setNextOffset(mappedByteBuffer.position());
             return offset;
         } catch (Exception e) {
             throw new TortoiseException(e);
@@ -164,25 +228,48 @@ public class QueueFile implements LifeCycle {
         }
     }
 
+    private ByteBuffer encodeMessage(MessageEntry messageEntry) {
+        messageEntry.setId(UUID.randomUUID().toString());
+        messageEntry.setCreateTime(System.currentTimeMillis());
+        messageEntry.setConsumptionTimes(0);
+        byte[] header = JSON.toJSONBytes(messageEntry.getHeader());
+        byte[] body = messageEntry.getBody();
+        // 消息长度
+        int messageLength = Constant.MESSAGE_METADATA_LENGTH + header.length + body.length;
+        ByteBuffer buffer = ByteBuffer.allocate(Constant.MESSAGE_LENGTH + messageLength);
+        buffer.putInt(messageLength);
+        buffer.put(messageEntry.getId().getBytes(StandardCharsets.UTF_8));
+        buffer.putLong(messageEntry.getConsumptionTimes());
+        buffer.put((byte) messageEntry.getConsumptionTimes());
+        buffer.putInt(header.length);
+        buffer.put(header);
+        buffer.putInt(body.length);
+        buffer.put(body);
+        buffer.position(0);
+        return buffer;
+    }
+
     /**
      * 删除时间之前的数据
-     * @param time 时间
+     *
+     * @param time         时间
+     * @param offsetBefore 偏移量之前
      * @return
      */
-    public int removeTimeBefore(long time) {
+    public int removeTimeBefore(long time, int offsetBefore) {
         boolean isLock = false;
         try {
             isLock = writeLock.tryLock(Constant.QUEUE_FILE_TRY_LOCK_TIME, TimeUnit.MILLISECONDS);
             int endOffset = Constant.FILE_LENGTH;
             int messageLength;
             // 判断该offset是否含有数据
-            while ((messageLength = mappedByteBuffer.getInt(endOffset)) != 0) {
+            while (endOffset <= offsetBefore && (messageLength = mappedByteBuffer.getInt(endOffset)) != 0) {
                 // 创建时间
-                long createTime = mappedByteBuffer.getLong(endOffset + Constant.MESSAGE_LENGTH);
+                long createTime = mappedByteBuffer.getLong(endOffset + Constant.MESSAGE_LENGTH + Constant.MESSAGE_ID_LENGTH);
                 if (createTime >= time) {
                     break;
                 }
-                endOffset = endOffset + Constant.MESSAGE_METADATA_LENGTH + messageLength;
+                endOffset = endOffset + Constant.MESSAGE_LENGTH + messageLength;
             }
             int remove = endOffset - Constant.FILE_LENGTH;
             if (remove == 0) {
@@ -243,7 +330,18 @@ public class QueueFile implements LifeCycle {
      * @return
      */
     public int getPosition() {
-        return mappedByteBuffer.position();
+        boolean isLock = false;
+        try {
+            isLock = readLock.tryLock(Constant.QUEUE_FILE_TRY_LOCK_TIME, TimeUnit.MILLISECONDS);
+            return mappedByteBuffer.position();
+        } catch (InterruptedException e) {
+            throw new TortoiseException(e);
+        } finally {
+            if (isLock) {
+                readLock.unlock();
+            }
+        }
+
     }
 
     public Integer getId() {

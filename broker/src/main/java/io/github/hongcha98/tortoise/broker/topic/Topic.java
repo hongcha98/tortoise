@@ -1,10 +1,8 @@
 package io.github.hongcha98.tortoise.broker.topic;
 
-import io.github.hongcha98.remote.protocol.Protocol;
 import io.github.hongcha98.tortoise.broker.LifeCycle;
 import io.github.hongcha98.tortoise.broker.constant.Constant;
-import io.github.hongcha98.tortoise.common.dto.message.Message;
-import io.github.hongcha98.tortoise.common.dto.message.MessageInfo;
+import io.github.hongcha98.tortoise.common.dto.message.MessageEntry;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -13,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReadWriteLock;
+
 
 public class Topic implements LifeCycle {
     AtomicInteger polling = new AtomicInteger(0);
@@ -29,24 +27,19 @@ public class Topic implements LifeCycle {
      * 队列数量
      */
     private final int queueNumber;
-    /**
-     * 编码解码器
-     */
-    private final Protocol protocol;
 
     /**
      * 队列列表
      */
     Map<Integer/* id */, QueueFile> queueFileMap;
 
-    public Topic(String path, String name, int queueNumber, Protocol protocol) {
+    public Topic(String path, String name, int queueNumber) {
         if (queueNumber < 1) {
             throw new IllegalStateException("queue number < 1");
         }
         this.path = path;
         this.name = name;
         this.queueNumber = queueNumber;
-        this.protocol = protocol;
         this.queueFileMap = new ConcurrentHashMap<>();
     }
 
@@ -60,48 +53,48 @@ public class Topic implements LifeCycle {
         for (int i = 0; i < queueNumber; i++) {
             String queueFileName = topicPath + File.separator + i + Constant.FILE_NAME_SUFFIX;
             File file = new File(queueFileName);
-            QueueFile queueFile = new QueueFile(file, i, protocol);
+            QueueFile queueFile = new QueueFile(file, i);
             queueFileMap.put(queueFile.getId(), queueFile);
         }
     }
 
-    public MessageInfo getMessage(int id, int offset) {
+    public MessageEntry getMessage(int id, int offset) {
         return getMessage(id, offset, false);
     }
 
-    public MessageInfo getMessage(int id, int offset, boolean consumer) {
+    public MessageEntry getMessage(int id, int offset, boolean consumer) {
         return queueFileMap.get(id).getMessage(offset, consumer);
     }
 
-    public int addMessage(Message message) {
-        return addMessage(message, false);
+    public int addMessage(MessageEntry messageEntry) {
+        return addMessage(messageEntry, false);
     }
 
-    public int addMessage(Message message, boolean brush) {
+    public int addMessage(MessageEntry messageEntry, boolean brush) {
         int position = polling.getAndIncrement();
         if (position == Integer.MAX_VALUE) {
             polling.set(0);
         }
         List<Integer> queueIds = new ArrayList<>(getQueuesId());
         int id = queueIds.get(position % queueIds.size());
-        return addMessage(id, message, brush);
+        return addMessage(id, messageEntry, brush);
     }
 
-    public int addMessage(int id, Message message) {
-        return addMessage(id, message, false);
+    public int addMessage(int id, MessageEntry messageEntry) {
+        return addMessage(id, messageEntry, false);
     }
 
-    public int addMessage(int id, Message message, boolean brush) {
+    public int addMessage(int id, MessageEntry messageEntry, boolean brush) {
         QueueFile queueFile = queueFileMap.get(id);
-        int offset = queueFile.addMessage(message);
+        int offset = queueFile.addMessage(messageEntry);
         if (brush) {
             queueFile.brush();
         }
         return offset;
     }
 
-    public int removeTimeBefore(int id, long time) {
-        return queueFileMap.get(id).removeTimeBefore(time);
+    public int removeTimeBefore(int id, long time, int offsetBefore) {
+        return queueFileMap.get(id).removeTimeBefore(time, offsetBefore);
     }
 
 

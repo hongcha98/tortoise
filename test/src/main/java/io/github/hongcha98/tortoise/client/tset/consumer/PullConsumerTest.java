@@ -16,5 +16,7 @@ public class PullConsumerTest {
             return true;
         });
         consumer.start();
+        consumer.deleteTopic("test-topic");
+        consumer.createTopic("test-topic", 8);
     }
 }
