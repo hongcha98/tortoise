@@ -16,7 +16,11 @@ public class PullConsumerTest {
             return true;
         });
         consumer.start();
-        consumer.deleteTopic("test-topic");
+        try {
+            consumer.deleteTopic("test-topic");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         consumer.createTopic("test-topic", 8);
     }
 }

@@ -1,7 +1,5 @@
 package io.github.hongcha98.tortoise.broker.config;
 
-import io.github.hongcha98.remote.common.spi.SpiLoader;
-import io.github.hongcha98.remote.protocol.Protocol;
 import io.github.hongcha98.tortoise.broker.constant.Constant;
 
 import java.io.File;

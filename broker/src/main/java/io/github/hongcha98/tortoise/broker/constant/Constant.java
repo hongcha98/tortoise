@@ -41,14 +41,16 @@ public class Constant {
     public static final String PASSWORD = NAME;
     // 消息保留时间
     public static final long MESSAGE_RETENTION_TIME = TimeUnit.DAYS.toMillis(3);
-    // queue文件尝试获取锁的时间
+    // queue文件尝试获取锁的时间 单位毫秒
     public static final long QUEUE_FILE_TRY_LOCK_TIME = 500;
-    // 刷磁盘时间间隔
+    // 刷磁盘时间间隔 单位毫秒
     public static final long BRUSH_TASK_TIME = 5000;
-    // 延时消息task间隔时间
+    // 延时消息task间隔时间 单位毫秒
     public static final long DELAY_MESSAGE_TASK_TIME = 200;
-    // session task time
+    // session task time 单位毫秒
     public static final long SESSION_TASK_TIME = 200;
+    // message delete task time  单位分钟
+    public static final long MESSAGE_DELETE_TASK_TIME = 10;
     // 消费次数限额
     public static final int CONSUMER_LIMIT = 16;
     // 延时主题队列数量

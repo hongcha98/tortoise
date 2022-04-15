@@ -22,8 +22,9 @@ public class TopicTest {
         MessageEntry messageEntry = new MessageEntry();
         for (int i = 0; i < 100; i++) {
             messageEntry.setBody(("hello world" + i).getBytes(StandardCharsets.UTF_8));
-            int offset = topic.addMessage(1, messageEntry);
-            MessageEntry message = topic.getMessage(1, offset);
+            QueueFile queueFile = topic.getNextStoreQueueFile();
+            int offset = queueFile.addMessage(messageEntry);
+            MessageEntry message = queueFile.getMessage(offset);
             System.out.println(messageEntry);
             System.out.println(message);
         }
@@ -31,7 +32,6 @@ public class TopicTest {
 
     @Test
     public void removeTimeBefore() {
-        System.out.println("topic.removeTimeBefore(1, System.currentTimeMillis()) = " + topic.removeTimeBefore(1, System.currentTimeMillis(), 1000));
 
     }
 
@@ -39,7 +39,8 @@ public class TopicTest {
     public void getMessage() {
         int offset = 4;
         MessageEntry messageEntry;
-        while ((messageEntry = topic.getMessage(1, offset)) != null) {
+        QueueFile queueFile = topic.getQueueFile(1);
+        while ((messageEntry = queueFile.getMessage(offset)) != null) {
             offset = messageEntry.getNextOffset();
             System.out.println(messageEntry);
         }

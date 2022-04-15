@@ -13,7 +13,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class DefaultSessionManage implements SessionManage {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultSessionManage.class);
 
-    private final Map<Node, Map<Channel, Set<Integer>>> subscriptionNodeMap = new ConcurrentHashMap<>();
+    private static final String DELIMITER = "@";
+
+    private final Map<String /* topic@group */, Map<Channel, Set<Integer> /* queue ids*/>> subscriptionNodeMap = new ConcurrentHashMap<>();
 
     private final TopicManage topicManage;
 
@@ -24,11 +26,11 @@ public class DefaultSessionManage implements SessionManage {
 
     @Override
     public void subscription(String topic, String group, Channel channel) {
-        Node node = new Node(topic, group);
-        Map<Channel, Set<Integer>> channelQueuesMap = subscriptionNodeMap.computeIfAbsent(node, n -> new ConcurrentHashMap<>());
+        String key = getKey(topic, group);
+        Map<Channel, Set<Integer>> channelQueuesMap = subscriptionNodeMap.computeIfAbsent(key, n -> new ConcurrentHashMap<>());
         if (!channelQueuesMap.containsKey(channel)) {
             channelQueuesMap.computeIfAbsent(channel, c -> new HashSet<>());
-            reallocate(node);
+            reallocate(topic, group);
         }
     }
 
@@ -37,16 +39,17 @@ public class DefaultSessionManage implements SessionManage {
      *
      * @param
      */
-    protected void reallocate(Node node) {
-        Map<Channel, Set<Integer>> channelQueueIdMap = subscriptionNodeMap.get(node);
-        if (!topicManage.exists(node.getTopic()))
+    protected void reallocate(String topic, String group) {
+        String key = getKey(topic, group);
+        Map<Channel, Set<Integer>> channelQueueIdMap = subscriptionNodeMap.get(key);
+        if (!topicManage.exists(topic))
             return;
-        Topic topic = topicManage.getTopic(node.getTopic());
-        Set<Integer> queuesId = topic.getQueuesId();
+        Topic tpc = topicManage.getTopic(topic);
+        Set<Integer> queuesId = tpc.getQueueIds();
         // 消费者实例个数
         int size = channelQueueIdMap.size();
         if (size == 0) {
-            LOG.info("node :{} , no consumers", node);
+            LOG.info("node :{} , no consumers", key);
             return;
         }
         // 平均多少个
@@ -99,17 +102,17 @@ public class DefaultSessionManage implements SessionManage {
                 }
             }
         });
-        LOG.info("node :{} , reallocate : {}", node, channelQueueIdMap);
+        LOG.info("node :{} , reallocate : {}", key, channelQueueIdMap);
     }
 
     @Override
     public void unSubscription(String topic, String group, Channel channel) {
-        Node node = new Node(topic, group);
-        Map<Channel, Set<Integer>> channelQueuesMap = subscriptionNodeMap.get(node);
+        String key = getKey(topic, group);
+        Map<Channel, Set<Integer>> channelQueuesMap = subscriptionNodeMap.get(key);
         if (channelQueuesMap != null) {
             Set<Integer> queueSet = channelQueuesMap.remove(channel);
             if (queueSet != null && !queueSet.isEmpty()) {
-                reallocate(node);
+                reallocate(topic, group);
             }
         }
 
@@ -117,61 +120,16 @@ public class DefaultSessionManage implements SessionManage {
 
     @Override
     public Set<Integer> getAllocate(String topic, String group, Channel channel) {
-        Node node = new Node(topic, group);
-        Map<Channel, Set<Integer>> channelQueuesMap = subscriptionNodeMap.get(node);
+        String key = getKey(topic, group);
+        Map<Channel, Set<Integer>> channelQueuesMap = subscriptionNodeMap.get(key);
         if (channelQueuesMap != null) {
             return channelQueuesMap.getOrDefault(channel, Collections.EMPTY_SET);
         }
         return Collections.EMPTY_SET;
     }
 
-    static class Node {
-
-        private String topic;
-        private String group;
-
-        public Node(String topic, String group) {
-            this.topic = topic;
-            this.group = group;
-        }
-
-        public String getTopic() {
-            return topic;
-        }
-
-        public void setTopic(String topic) {
-            this.topic = topic;
-        }
-
-        public String getGroup() {
-            return group;
-        }
-
-        public void setGroup(String group) {
-            this.group = group;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Node node = (Node) o;
-            return Objects.equals(topic, node.topic) && Objects.equals(group, node.group);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(topic, group);
-        }
-
-        @Override
-        public String toString() {
-            return "Node{" +
-                    "topic='" + topic + '\'' +
-                    ", group='" + group + '\'' +
-                    '}';
-        }
-
+    protected String getKey(String topic, String group) {
+        return topic + DELIMITER + group;
     }
 
 }

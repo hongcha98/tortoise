@@ -3,9 +3,10 @@ package io.github.hongcha98.tortoise.common.dto.offset.request;
 public class OffsetCommitRequest {
     private String topic;
     private int queueId;
-    private String msgId;
-    private int offset;
-
+    // 当前偏移量
+    private int currentOffset;
+    // 要提交的偏移量
+    private int commitOffset;
 
     public String getTopic() {
         return topic;
@@ -23,19 +24,19 @@ public class OffsetCommitRequest {
         this.queueId = queueId;
     }
 
-    public int getOffset() {
-        return offset;
+    public int getCurrentOffset() {
+        return currentOffset;
     }
 
-    public String getMsgId() {
-        return msgId;
+    public void setCurrentOffset(int currentOffset) {
+        this.currentOffset = currentOffset;
     }
 
-    public void setMsgId(String msgId) {
-        this.msgId = msgId;
+    public int getCommitOffset() {
+        return commitOffset;
     }
 
-    public void setOffset(int offset) {
-        this.offset = offset;
+    public void setCommitOffset(int commitOffset) {
+        this.commitOffset = commitOffset;
     }
 }

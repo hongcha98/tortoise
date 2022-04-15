@@ -35,9 +35,9 @@ public class MessageAddProcess extends AbstractProcess {
         if (delayLevel != 0) {
             topic = getBroker().getTopicManage().getTopic(Constant.DELAY_TOPIC);
             messageEntry.getHeader().put(Constant.DELAY_HEADER_TOPIC, messageAddRequest.getTopic());
-            offset = topic.addMessage(delayLevel - 1, messageEntry, messageAddRequest.isBrush());
+            offset = topic.getQueueFile(delayLevel - 1).addMessage(messageEntry, messageAddRequest.isBrush());
         } else {
-            offset = topic.addMessage(messageEntry, messageAddRequest.isBrush());
+            offset = topic.getNextStoreQueueFile().addMessage(messageEntry, messageAddRequest.isBrush());
         }
         LOG.info("message topic : {} , id :{} ,  add success , offset : {}", topic.getName(), messageEntry.getId(), offset);
         response(channelHandlerContext, message, messageEntry.getId());

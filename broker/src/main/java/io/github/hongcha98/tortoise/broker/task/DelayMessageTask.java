@@ -46,18 +46,22 @@ public class DelayMessageTask extends AbstractTask {
             TopicManage topicManage = getBroker().getTopicManage();
             OffsetManage offsetManage = getBroker().getOffsetManage();
             Topic tpc = topicManage.getTopic(Constant.DELAY_TOPIC);
-            tpc.getQueuesId().parallelStream().forEach(queueId -> {
-                int offset = offsetManage.getOffset(Constant.DELAY_TOPIC, Constant.DELAY_GROUP, queueId);
+            tpc.getQueueFiles().parallelStream().forEach(queueFile -> {
+                Integer id = queueFile.getId();
+                int offset = offsetManage.getOffset(Constant.DELAY_TOPIC, Constant.DELAY_GROUP, id);
                 MessageEntry messageEntry;
-                while ((messageEntry = tpc.getMessage(queueId, offset)) != null) {
+                while ((messageEntry = queueFile.getMessage(offset)) != null) {
                     offset = messageEntry.getNextOffset();
                     Map<String, String> header = messageEntry.getHeader();
                     // 是否超时
-                    if (System.currentTimeMillis() >= messageEntry.getCreateTime() + DELAY_LEVEL_TIME_MAP.get(queueId + 1)) {
+                    if (System.currentTimeMillis() >= messageEntry.getCreateTime() + DELAY_LEVEL_TIME_MAP.get(id + 1)) {
                         String topic = header.remove(Constant.DELAY_HEADER_TOPIC);
                         Topic targetTopic = topicManage.getTopic(topic);
-                        targetTopic.addMessage(messageEntry);
-                        offsetManage.commitOffset(Constant.DELAY_TOPIC, Constant.DELAY_GROUP, queueId, offset);
+                        MessageEntry targetAddMessage = new MessageEntry();
+                        targetAddMessage.setHeader(header);
+                        targetAddMessage.setBody(messageEntry.getBody());
+                        targetTopic.getNextStoreQueueFile().addMessage(targetAddMessage);
+                        offsetManage.casCommitOffset(Constant.DELAY_TOPIC, Constant.DELAY_GROUP, id, messageEntry.getOffset(), messageEntry.getNextOffset());
                     } else {
                         break;
                     }

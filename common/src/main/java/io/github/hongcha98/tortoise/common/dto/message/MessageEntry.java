@@ -81,6 +81,21 @@ public class MessageEntry {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MessageEntry that = (MessageEntry) o;
+        return createTime == that.createTime && offset == that.offset && Objects.equals(id, that.id) && Objects.equals(header, that.header) && Arrays.equals(body, that.body);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(id, createTime, header, offset);
+        result = 31 * result + Arrays.hashCode(body);
+        return result;
+    }
+
+    @Override
     public String toString() {
         return "Message{" +
                 "id='" + id + '\'' +

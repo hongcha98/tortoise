@@ -20,11 +20,11 @@ public class FileOffsetManage extends AbstractOffsetManage {
 
     private RandomAccessFile randomAccessFile;
 
+
     public FileOffsetManage(File file, TopicManage topicManage) {
         super(topicManage);
         this.file = file;
     }
-
 
     @Override
     protected void doClose() {
@@ -49,7 +49,7 @@ public class FileOffsetManage extends AbstractOffsetManage {
                 if (length != 0) {
                     byte[] bytes = new byte[(int) length];
                     randomAccessFile.read(bytes);
-                    setTopicGroupOffsetMap(SpiLoader.load(Protocol.class, Constant.PROTOCOL_CODE).decode(bytes, Map.class));
+                    topicGroupOffsetMap = (SpiLoader.load(Protocol.class, Constant.PROTOCOL_CODE).decode(bytes, Map.class));
                 }
             }
         } catch (Exception e) {
@@ -59,7 +59,7 @@ public class FileOffsetManage extends AbstractOffsetManage {
 
     private void enduranceCommon() {
         synchronized (this) {
-            byte[] encode = SpiLoader.load(Protocol.class, Constant.PROTOCOL_CODE).encode(getTopicGroupOffsetMap());
+            byte[] encode = SpiLoader.load(Protocol.class, Constant.PROTOCOL_CODE).encode(topicGroupOffsetMap);
             try {
                 randomAccessFile.seek(0);
                 randomAccessFile.setLength(encode.length);

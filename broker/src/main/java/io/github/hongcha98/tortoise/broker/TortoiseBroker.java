@@ -19,6 +19,7 @@ import io.github.hongcha98.tortoise.broker.process.topic.TopicDeleteProcess;
 import io.github.hongcha98.tortoise.broker.session.DefaultSessionManage;
 import io.github.hongcha98.tortoise.broker.session.SessionManage;
 import io.github.hongcha98.tortoise.broker.task.DelayMessageTask;
+import io.github.hongcha98.tortoise.broker.task.MessageDeleteTask;
 import io.github.hongcha98.tortoise.broker.task.SessionTask;
 import io.github.hongcha98.tortoise.broker.task.TopicBrushTask;
 import io.github.hongcha98.tortoise.broker.topic.DefaultTopicManage;
@@ -174,6 +175,7 @@ public class TortoiseBroker implements LifeCycle {
         taskExecutorService.scheduleAtFixedRate(new SessionTask(this), tortoiseConfig.getSessionTaskTime(), tortoiseConfig.getSessionTaskTime(), TimeUnit.MILLISECONDS);
         taskExecutorService.scheduleAtFixedRate(new TopicBrushTask(this), tortoiseConfig.getBrushTaskTime(), tortoiseConfig.getBrushTaskTime(), TimeUnit.MILLISECONDS);
         taskExecutorService.scheduleAtFixedRate(new DelayMessageTask(this), 0, tortoiseConfig.getDelayMessageTaskTime(), TimeUnit.MILLISECONDS);
+        taskExecutorService.scheduleAtFixedRate(new MessageDeleteTask(this), 0, Constant.MESSAGE_DELETE_TASK_TIME, TimeUnit.MINUTES);
     }
 
     public TortoiseConfig getTortoiseConfig() {

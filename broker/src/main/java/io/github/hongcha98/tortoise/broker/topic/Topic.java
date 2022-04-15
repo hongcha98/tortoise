@@ -2,19 +2,18 @@ package io.github.hongcha98.tortoise.broker.topic;
 
 import io.github.hongcha98.tortoise.broker.LifeCycle;
 import io.github.hongcha98.tortoise.broker.constant.Constant;
-import io.github.hongcha98.tortoise.common.dto.message.MessageEntry;
+import io.github.hongcha98.tortoise.common.error.TortoiseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class Topic implements LifeCycle {
-    AtomicInteger polling = new AtomicInteger(0);
+    private static final Logger LOG = LoggerFactory.getLogger(Topic.class);
     /**
      * 存储位置
      */
@@ -24,14 +23,17 @@ public class Topic implements LifeCycle {
      */
     private final String name;
     /**
-     * 队列数量
+     * 轮询位置
      */
-    private final int queueNumber;
-
+    private AtomicInteger polling = new AtomicInteger(0);
     /**
      * 队列列表
      */
-    Map<Integer/* id */, QueueFile> queueFileMap;
+    private Map<Integer/* id */, QueueFile> queueFileMap;
+    /**
+     * 队列数量
+     */
+    private int queueNumber;
 
     public Topic(String path, String name, int queueNumber) {
         if (queueNumber < 1) {
@@ -47,62 +49,63 @@ public class Topic implements LifeCycle {
     public void start() {
         String topicPath = path + File.separator + name;
         File topicDirectory = new File(topicPath);
-        if (!topicDirectory.exists()) {
+        if (topicDirectory.exists()) {
+            File[] files = topicDirectory.listFiles();
+            if (files.length == 0) {
+                throw new TortoiseException("topic : " + getName() + " queue file is deleted");
+            }
+            for (File file : files) {
+                String name = file.getName();
+                if (name.endsWith(Constant.FILE_NAME_SUFFIX)) {
+                    int id = Integer.parseInt(name.replace(Constant.FILE_NAME_SUFFIX, ""));
+                    QueueFile queueFile = new QueueFile(file, id);
+                    queueFileMap.put(queueFile.getId(), queueFile);
+                } else {
+                    LOG.warn("topic : {} , file : {}  illegal", getName(), file.getPath());
+                }
+            }
+            this.queueNumber = queueFileMap.size();
+        } else {
             topicDirectory.mkdir();
+            for (int id = 0; id < queueNumber; id++) {
+                String queueFileName = topicPath + File.separator + id + Constant.FILE_NAME_SUFFIX;
+                File file = new File(queueFileName);
+                QueueFile queueFile = new QueueFile(file, id);
+                queueFileMap.put(queueFile.getId(), queueFile);
+            }
         }
-        for (int i = 0; i < queueNumber; i++) {
-            String queueFileName = topicPath + File.separator + i + Constant.FILE_NAME_SUFFIX;
-            File file = new File(queueFileName);
-            QueueFile queueFile = new QueueFile(file, i);
-            queueFileMap.put(queueFile.getId(), queueFile);
-        }
+
     }
 
-    public MessageEntry getMessage(int id, int offset) {
-        return getMessage(id, offset, false);
-    }
-
-    public MessageEntry getMessage(int id, int offset, boolean consumer) {
-        return queueFileMap.get(id).getMessage(offset, consumer);
-    }
-
-    public int addMessage(MessageEntry messageEntry) {
-        return addMessage(messageEntry, false);
-    }
-
-    public int addMessage(MessageEntry messageEntry, boolean brush) {
+    /**
+     * 获取下一个存储的queueFile
+     *
+     * @return
+     */
+    public QueueFile getNextStoreQueueFile() {
         int position = polling.getAndIncrement();
         if (position == Integer.MAX_VALUE) {
             polling.set(0);
         }
-        List<Integer> queueIds = new ArrayList<>(getQueuesId());
-        int id = queueIds.get(position % queueIds.size());
-        return addMessage(id, messageEntry, brush);
+        List<Integer> queueIds = new ArrayList<>(getQueueIds());
+        return getQueueFile(queueIds.get(position % queueIds.size()));
     }
 
-    public int addMessage(int id, MessageEntry messageEntry) {
-        return addMessage(id, messageEntry, false);
+    /**
+     * 获取QueueFile
+     *
+     * @param id queue id
+     * @return
+     */
+    public QueueFile getQueueFile(int id) {
+        return queueFileMap.get(id);
     }
 
-    public int addMessage(int id, MessageEntry messageEntry, boolean brush) {
-        QueueFile queueFile = queueFileMap.get(id);
-        int offset = queueFile.addMessage(messageEntry);
-        if (brush) {
-            queueFile.brush();
-        }
-        return offset;
-    }
-
-    public int removeTimeBefore(int id, long time, int offsetBefore) {
-        return queueFileMap.get(id).removeTimeBefore(time, offsetBefore);
-    }
-
-
-    public int getIdOffset(int id) {
-        return queueFileMap.get(id).getPosition();
-    }
-
-
+    /**
+     * 获取topic名称
+     *
+     * @return
+     */
     public String getName() {
         return name;
     }
@@ -111,8 +114,12 @@ public class Topic implements LifeCycle {
         return queueNumber;
     }
 
+    public Collection<QueueFile> getQueueFiles() {
+        return queueFileMap.values();
+    }
 
-    public Set<Integer> getQueuesId() {
+
+    public Set<Integer> getQueueIds() {
         return queueFileMap.keySet();
     }
 

@@ -56,29 +56,34 @@ public class PullDefaultConsumer extends AbstractClientApi implements Consumer {
                 }
                 queueIdMessageMap.keySet().parallelStream().forEach(queueId -> {
                     List<MessageEntry> messageEntries = queueIdMessageMap.get(queueId);
-                    int offset = -1;
+                    int currentOffset = -1;
+                    int commitOffset = -1;
                     try {
+                        if (!messageEntries.isEmpty()) {
+                            currentOffset = messageEntries.get(0).getOffset();
+                        }
                         for (MessageEntry messageEntry : messageEntries) {
                             try {
                                 if (messageListener.listener(messageEntry)) {
-                                    offset = messageEntry.getNextOffset();
+                                    commitOffset = messageEntry.getNextOffset();
                                 } else {
-                                    offset = messageEntry.getOffset();
+                                    commitOffset = messageEntry.getOffset();
                                     break;
                                 }
                             } catch (Exception e) {
                                 LOG.error("", e);
                                 LOG.error("topic : {} , group :{} ,msg id : {} consumer error", topic, getTortoiseConfig().getGroup(), messageEntry.getId());
-                                offset = messageEntry.getOffset();
+                                commitOffset = messageEntry.getOffset();
                                 break;
                             }
                         }
                     } finally {
-                        if (offset != -1) {
+                        if (currentOffset != commitOffset) {
                             OffsetCommitRequest offsetCommitRequest = new OffsetCommitRequest();
                             offsetCommitRequest.setTopic(topic);
                             offsetCommitRequest.setQueueId(queueId);
-                            offsetCommitRequest.setOffset(offset);
+                            offsetCommitRequest.setCurrentOffset(currentOffset);
+                            offsetCommitRequest.setCommitOffset(commitOffset);
                             getCore().commitOffset(offsetCommitRequest);
                         }
                     }

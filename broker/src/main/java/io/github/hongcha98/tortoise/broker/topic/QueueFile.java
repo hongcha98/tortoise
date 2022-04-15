@@ -19,6 +19,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
@@ -44,10 +46,9 @@ public class QueueFile implements LifeCycle {
 
     private MappedByteBuffer mappedByteBuffer;
 
+    private Lock readLock;
 
-    private ReentrantReadWriteLock.ReadLock readLock;
-
-    private ReentrantReadWriteLock.WriteLock writeLock;
+    private Lock writeLock;
 
     public QueueFile(File file, Integer id) {
         try {
@@ -59,7 +60,7 @@ public class QueueFile implements LifeCycle {
             this.randomAccessFile = new RandomAccessFile(file, "rw");
             this.fileChannel = randomAccessFile.getChannel();
             this.mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, 0, fileLength);
-            ReentrantReadWriteLock reentrantReadWriteLock = new ReentrantReadWriteLock();
+            ReadWriteLock reentrantReadWriteLock = new ReentrantReadWriteLock();
             this.readLock = reentrantReadWriteLock.readLock();
             this.writeLock = reentrantReadWriteLock.writeLock();
             initOffset();
@@ -146,63 +147,24 @@ public class QueueFile implements LifeCycle {
         }
     }
 
-    public String getMsgId(int offset) {
-        boolean isLock = false;
-        try {
-            isLock = readLock.tryLock(Constant.QUEUE_FILE_TRY_LOCK_TIME, TimeUnit.MILLISECONDS);
-            ByteBuffer readBuffer = mappedByteBuffer.asReadOnlyBuffer();
-            // 读取消息长度
-            int length = readBuffer.getInt(offset);
-            if (length == 0) return null;
-            readBuffer.position(offset += Constant.MESSAGE_LENGTH);
-            byte[] idBytes = new byte[36];
-            readBuffer.get(idBytes);
-            return new String(idBytes, StandardCharsets.UTF_8);
-
-        } catch (InterruptedException e) {
-            throw new TortoiseException(e);
-        } finally {
-            if (isLock) {
-                readLock.unlock();
-            }
-        }
+    /**
+     * 添加数据到末尾,返回这条消息的offset,不刷盘
+     *
+     * @param messageEntry 消息
+     * @return
+     */
+    public int addMessage(MessageEntry messageEntry) {
+        return addMessage(messageEntry, false);
     }
-
-
-    public int getMsgIdOffset(String msgId, int begin, int max) {
-        boolean isLock = false;
-        try {
-            isLock = readLock.tryLock(Constant.QUEUE_FILE_TRY_LOCK_TIME, TimeUnit.MILLISECONDS);
-            ByteBuffer readBuffer = mappedByteBuffer.asReadOnlyBuffer();
-            int offset = begin;
-            for (int i = 0; i < max; i++) {
-                // 读取消息长度
-                int length = readBuffer.getInt(offset);
-                if (length == 0) return -1;
-                readBuffer.position(offset + Constant.MESSAGE_LENGTH);
-                byte[] idBytes = new byte[36];
-                readBuffer.get(idBytes);
-                String id = new String(idBytes, StandardCharsets.UTF_8);
-                if (id.equals(msgId))
-                    return offset;
-            }
-            return -1;
-        } catch (InterruptedException e) {
-            throw new TortoiseException(e);
-        } finally {
-            if (isLock) {
-                readLock.unlock();
-            }
-        }
-    }
-
 
     /**
      * 添加数据到末尾,返回这条消息的offset
      *
-     * @param messageEntry
+     * @param messageEntry 消息
+     * @param brush        是否刷盘
+     * @return
      */
-    public int addMessage(MessageEntry messageEntry) {
+    public int addMessage(MessageEntry messageEntry, boolean brush) {
         ByteBuffer buffer = encodeMessage(messageEntry);
         boolean isLock = false;
         try {
@@ -218,6 +180,9 @@ public class QueueFile implements LifeCycle {
             mappedByteBuffer.putInt(Constant.FILE_LENGTH_INDEX, mappedByteBuffer.position());
             messageEntry.setOffset(offset);
             messageEntry.setNextOffset(mappedByteBuffer.position());
+            if (brush) {
+                mappedByteBuffer.force();
+            }
             return offset;
         } catch (Exception e) {
             throw new TortoiseException(e);
@@ -239,7 +204,7 @@ public class QueueFile implements LifeCycle {
         ByteBuffer buffer = ByteBuffer.allocate(Constant.MESSAGE_LENGTH + messageLength);
         buffer.putInt(messageLength);
         buffer.put(messageEntry.getId().getBytes(StandardCharsets.UTF_8));
-        buffer.putLong(messageEntry.getConsumptionTimes());
+        buffer.putLong(messageEntry.getCreateTime());
         buffer.put((byte) messageEntry.getConsumptionTimes());
         buffer.putInt(header.length);
         buffer.put(header);
@@ -263,7 +228,7 @@ public class QueueFile implements LifeCycle {
             int endOffset = Constant.FILE_LENGTH;
             int messageLength;
             // 判断该offset是否含有数据
-            while (endOffset <= offsetBefore && (messageLength = mappedByteBuffer.getInt(endOffset)) != 0) {
+            while (endOffset < offsetBefore && (messageLength = mappedByteBuffer.getInt(endOffset)) != 0) {
                 // 创建时间
                 long createTime = mappedByteBuffer.getLong(endOffset + Constant.MESSAGE_LENGTH + Constant.MESSAGE_ID_LENGTH);
                 if (createTime >= time) {
@@ -276,14 +241,12 @@ public class QueueFile implements LifeCycle {
                 return 0;
             }
             int newLength = mappedByteBuffer.position() - endOffset;
-            byte[] bytes = new byte[newLength];
-            mappedByteBuffer.position(endOffset);
-            mappedByteBuffer.get(bytes);
-            mappedByteBuffer.position(Constant.FILE_LENGTH);
-            mappedByteBuffer.put(bytes);
-            bytes = new byte[remove];
-            mappedByteBuffer.put(bytes);
-            mappedByteBuffer.putInt(Constant.FILE_LENGTH_INDEX, newLength);
+            int newStart = endOffset - Constant.FILE_LENGTH;
+            int capacity = mappedByteBuffer.capacity();
+            mappedByteBuffer.putInt(newStart, newLength);
+            mappedByteBuffer.force();
+            MMAP_CLEAR_METHOD.invoke(FileChannelImpl.class, mappedByteBuffer);
+            mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, newStart, capacity);
             mappedByteBuffer.position(Constant.FILE_LENGTH + newLength);
             return remove;
         } catch (Exception e) {
@@ -325,7 +288,7 @@ public class QueueFile implements LifeCycle {
     }
 
     /**
-     * 获取写入的位置
+     * 获取写入的位置,也就是最新一条信息的offset
      *
      * @return
      */
@@ -341,7 +304,6 @@ public class QueueFile implements LifeCycle {
                 readLock.unlock();
             }
         }
-
     }
 
     public Integer getId() {
