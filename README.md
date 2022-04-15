@@ -21,7 +21,7 @@ broker
 - queue文件删除时间之前的数据
     - 删除(已完成)
 
-    - 调整topic的offset
+    - 调整topic的offset(已完成)
 
 - 其他再想想
 
