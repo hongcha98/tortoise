@@ -80,8 +80,7 @@ public abstract class AbstractOffsetManage implements OffsetManage {
     public void offsetForward(String topic, int id, int forward) {
         topicGroupOffsetMap.forEach((topicGroup, queueIdOffsetMap) -> {
             if (topic.equals(topicGroup.split(DELIMITER)[0])) {
-                Integer offset = queueIdOffsetMap.get(id);
-                queueIdOffsetMap.put(id, offset - forward);
+                queueIdOffsetMap.computeIfPresent(id, (k, v) -> v - forward);
             }
         });
         enduranceTopic(topic);
@@ -91,23 +90,7 @@ public abstract class AbstractOffsetManage implements OffsetManage {
     @Override
     public boolean casCommitOffset(String topic, String group, int id, int oldOffset, int newOffset) {
         Map<Integer, Integer> offsetMap = getOffset(topic, group);
-        if (offsetMap.get(id) == oldOffset) {
-            offsetMap.put(id, newOffset);
-            endurance(topic, group, id, newOffset);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * 持久化这个offset
-     *
-     * @param topic
-     * @param group
-     * @param id
-     * @param offset
-     */
-    protected void endurance(String topic, String group, int id, int offset) {
+        return offsetMap.computeIfPresent(id, (k, v) -> v == oldOffset ? newOffset : v) == newOffset;
     }
 
     /**

@@ -20,10 +20,13 @@ public class FileOffsetManage extends AbstractOffsetManage {
 
     private RandomAccessFile randomAccessFile;
 
+    private Protocol protocol;
+
 
     public FileOffsetManage(File file, TopicManage topicManage) {
         super(topicManage);
         this.file = file;
+        this.protocol = SpiLoader.load(Protocol.class, Constant.PROTOCOL_CODE);
     }
 
     @Override
@@ -49,7 +52,7 @@ public class FileOffsetManage extends AbstractOffsetManage {
                 if (length != 0) {
                     byte[] bytes = new byte[(int) length];
                     randomAccessFile.read(bytes);
-                    topicGroupOffsetMap = (SpiLoader.load(Protocol.class, Constant.PROTOCOL_CODE).decode(bytes, Map.class));
+                    topicGroupOffsetMap = protocol.decode(bytes, Map.class);
                 }
             }
         } catch (Exception e) {
@@ -57,16 +60,19 @@ public class FileOffsetManage extends AbstractOffsetManage {
         }
     }
 
-    private void enduranceCommon() {
-        synchronized (this) {
-            byte[] encode = SpiLoader.load(Protocol.class, Constant.PROTOCOL_CODE).encode(topicGroupOffsetMap);
-            try {
-                randomAccessFile.seek(0);
-                randomAccessFile.setLength(encode.length);
-                randomAccessFile.write(encode);
-            } catch (IOException e) {
-                LOG.info("write error", e);
-            }
+    @Override
+    protected void enduranceTopic(String topic) {
+        this.enduranceCommon();
+    }
+
+    private synchronized void enduranceCommon() {
+        byte[] encode = protocol.encode(topicGroupOffsetMap);
+        try {
+            randomAccessFile.seek(0);
+            randomAccessFile.setLength(encode.length);
+            randomAccessFile.write(encode);
+        } catch (IOException e) {
+            LOG.info("write error", e);
         }
     }
 }

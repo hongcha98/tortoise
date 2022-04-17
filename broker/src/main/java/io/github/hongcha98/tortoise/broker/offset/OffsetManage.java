@@ -38,20 +38,8 @@ public interface OffsetManage extends LifeCycle {
      * @param topic 主题
      */
     void deleteTopicOffset(String topic);
-
     /**
-     * 获取主题中的队列最小offset
-     *
-     * @param topic 主题
-     * @param id    队列id
-     * @return
-     */
-    default int getMinOffset(String topic, int id) {
-        return getMinOffset(topic).getOrDefault(id, -1);
-    }
-
-    /**
-     * 获取主题所以队列的最小偏移量
+     * 获取主题所有队列的最小偏移量,可能不是实时的
      *
      * @param topic 主题
      * @return

@@ -242,12 +242,28 @@ public class QueueFile implements LifeCycle {
             }
             int newLength = mappedByteBuffer.position() - endOffset;
             int newStart = endOffset - Constant.FILE_LENGTH;
-            int capacity = mappedByteBuffer.capacity();
+            //  原有容量
+            long capacity = fileChannel.size();
+            //  新的容量
+            int newCapacity = (((newLength + Constant.FILE_LENGTH) / Constant.QUEUE_FILE_ADD_SIZE) + 1) * Constant.QUEUE_FILE_ADD_SIZE;
+            int newPosition = Constant.FILE_LENGTH + newLength;
             mappedByteBuffer.putInt(newStart, newLength);
             mappedByteBuffer.force();
             MMAP_CLEAR_METHOD.invoke(FileChannelImpl.class, mappedByteBuffer);
-            mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, newStart, capacity);
-            mappedByteBuffer.position(Constant.FILE_LENGTH + newLength);
+            mappedByteBuffer = null;
+            // 传输后面的字节到前面来
+            fileChannel.position(0);
+            fileChannel.transferTo(newStart, newPosition, fileChannel);
+            // 截断
+            fileChannel.truncate(newPosition);
+            fileChannel.force(true);
+            fileChannel.position(0);
+            // 设置新的容量
+            if (capacity != newCapacity) {
+                randomAccessFile.setLength(newCapacity);
+            }
+            mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, 0, newCapacity);
+            mappedByteBuffer.position(newPosition);
             return remove;
         } catch (Exception e) {
             throw new TortoiseException(e);

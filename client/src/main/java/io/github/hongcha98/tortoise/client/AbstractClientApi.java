@@ -32,13 +32,12 @@ public abstract class AbstractClientApi implements ClientApi {
 
     public AbstractClientApi(TortoiseConfig tortoiseConfig) {
         this(tortoiseConfig, SpiLoader.load(Protocol.class, PROTOCOL_DEFAULT_NAME));
-        checkConfig(tortoiseConfig);
-
     }
 
     public AbstractClientApi(TortoiseConfig tortoiseConfig, Protocol protocol) {
         this.tortoiseConfig = tortoiseConfig;
         this.protocol = protocol;
+        checkConfig(tortoiseConfig);
     }
 
     protected void checkConfig(TortoiseConfig tortoiseConfig) {
@@ -74,8 +73,8 @@ public abstract class AbstractClientApi implements ClientApi {
         if (start.compareAndSet(false, true)) {
             try {
                 core = new DefaultCore(tortoiseConfig);
-                sendExecutorService = Executors.newFixedThreadPool(getTortoiseConfig().getSendThreadNum());
                 core.start();
+                sendExecutorService = Executors.newFixedThreadPool(getTortoiseConfig().getSendThreadNum());
                 doStart();
             } catch (Exception e) {
                 throw new IllegalStateException("start error", e);
