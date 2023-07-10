@@ -21,7 +21,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <zk.version>3.7.0</zk.version>
         <juint.version>4.13.2</juint.version>
-        <fastjson.version>1.2.73</fastjson.version>
+        <fastjson.version>2.0.35</fastjson.version>
         <remote-version>1.0.0-SNAPSHOT</remote-version>
     </properties>
 
